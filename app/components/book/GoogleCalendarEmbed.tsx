@@ -15,13 +15,18 @@ export default function GoogleCalendarEmbed() {
   }, []);
 
   return (
-    <iframe
-      src="https://calendar.app.google/aGh8hXubzC7pt6y5A"
-      style={{ border: 0, width: '100%' }}
-      className="h-[680px] max-md:h-[calc(100vh-120px)]"
-      frameBorder="0"
-      title="Book a free property consultation"
-      loading="lazy"
-    />
+    <div className="text-center py-8 px-4 space-y-4">
+      <a
+        href="https://calendar.app.google/aGh8hXubzC7pt6y5A"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] font-bold text-xl px-8 py-5 rounded-lg transition-colors min-h-[44px]"
+      >
+        Schedule Your Free Consultation
+      </a>
+      <p className="text-sm text-[var(--text-secondary)]">
+        You&apos;ll be taken to Google Calendar to pick a time that works for you.
+      </p>
+    </div>
   );
 }

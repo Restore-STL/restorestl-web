@@ -654,9 +654,16 @@ export default function WMHWWidget() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`font-semibold ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
-                              {tier.label}
-                            </p>
+                            <div className="flex items-baseline justify-between gap-2">
+                              <p className={`font-semibold ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+                                {tier.label}
+                              </p>
+                              {valuation?.estimated_value && (
+                                <p className="text-sm font-semibold text-[var(--text-primary)] whitespace-nowrap">
+                                  ~{formatCurrency(Math.round(valuation.estimated_value * tier.multiplier))}
+                                </p>
+                              )}
+                            </div>
                             <p className="text-sm text-[var(--text-secondary)] mt-0.5">
                               {tier.desc}
                             </p>
@@ -752,12 +759,40 @@ export default function WMHWWidget() {
                     <p className="text-4xl font-bold text-[var(--text-primary)] mb-1">
                       {formatCurrency(adjustedValue)}
                     </p>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      {adjustedLow && adjustedHigh && (
-                        <>Range: {formatCurrency(adjustedLow)} &ndash; {formatCurrency(adjustedHigh)} &middot; </>
-                      )}
-                      Based on {conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label.toLowerCase() : ''} condition
-                    </p>
+                    {adjustedLow && adjustedHigh && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex justify-between text-base font-medium text-[var(--text-primary)]">
+                          <span>{formatCurrency(adjustedLow)}</span>
+                          <span>{formatCurrency(adjustedHigh)}</span>
+                        </div>
+                        <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--brand-yellow)] to-amber-400 rounded-full"
+                            style={{
+                              width: adjustedHigh > adjustedLow
+                                ? `${((adjustedValue - adjustedLow) / (adjustedHigh - adjustedLow)) * 100}%`
+                                : '50%',
+                            }}
+                          />
+                          <div
+                            className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-[var(--brand-yellow)] border-2 border-white rounded-full shadow-md"
+                            style={{
+                              left: adjustedHigh > adjustedLow
+                                ? `clamp(0%, ${((adjustedValue - adjustedLow) / (adjustedHigh - adjustedLow)) * 100}%, calc(100% - 20px))`
+                                : '50%',
+                            }}
+                          />
+                        </div>
+                        <p className="text-sm text-[var(--text-secondary)]">
+                          Based on {conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label.toLowerCase() : ''} condition
+                        </p>
+                      </div>
+                    )}
+                    {!(adjustedLow && adjustedHigh) && (
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        Based on {conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label.toLowerCase() : ''} condition
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -787,6 +822,11 @@ export default function WMHWWidget() {
                         </div>
                       ))}
                     </div>
+                    {comps.length < 3 && (
+                      <p className="text-xs text-[var(--text-secondary)] text-center italic">
+                        Additional comparable sales will be included in your full report.
+                      </p>
+                    )}
                   </div>
                 )}
 

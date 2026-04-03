@@ -40,7 +40,7 @@ export default function Navigation() {
               href="/sell"
               className="text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium"
             >
-              Sell Your House
+              Sell
             </Link>
             <a
               href="tel:+13147363311"
@@ -104,7 +104,7 @@ export default function Navigation() {
               className="block text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium py-3 px-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Sell Your House
+              Sell
             </Link>
             <a
               href="tel:+13147363311"
