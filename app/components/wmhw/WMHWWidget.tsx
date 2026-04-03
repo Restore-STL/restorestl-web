@@ -32,11 +32,11 @@ const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
 // Condition tiers (from optimized WMHW)
 const CONDITION_TIERS = [
-  { label: 'Needs Major Work', multiplier: 0.50, desc: 'Cash-buyer range. Accounts for significant structural, roof, or system overhauls.' },
-  { label: 'Needs TLC', multiplier: 0.65, desc: 'Investor offer range. Deducts for deferred maintenance (paint, flooring, minor repairs).' },
-  { label: 'Average', multiplier: 0.80, desc: 'Standard market value. Assumes a solid home that is stylistically dated (older cabinets, carpet).' },
-  { label: 'Updated', multiplier: 0.92, desc: 'Strong value. Home is modern but may lack brand-new premium finishes.' },
-  { label: 'Pristine', multiplier: 1.0, desc: 'Top of market value. Requires showroom condition (new roof, modern kitchen, hardwood).' },
+  { label: 'Needs Major Work', tierPercent: 0.0, desc: 'Cash-buyer range. Accounts for significant structural, roof, or system overhauls.' },
+  { label: 'Needs TLC', tierPercent: 0.25, desc: 'Investor offer range. Deducts for deferred maintenance (paint, flooring, minor repairs).' },
+  { label: 'Average', tierPercent: 0.50, desc: 'Standard market value. Assumes a solid home that is stylistically dated (older cabinets, carpet).' },
+  { label: 'Updated', tierPercent: 0.75, desc: 'Strong value. Home is modern but may lack brand-new premium finishes.' },
+  { label: 'Pristine', tierPercent: 1.0, desc: 'Top of market value. Requires showroom condition (new roof, modern kitchen, hardwood).' },
 ];
 
 type AddressInput = {
@@ -371,9 +371,9 @@ export default function WMHWWidget() {
     const last_name = nameParts.slice(1).join(' ') || first_name;
 
     const selectedCondition = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label : 'Average';
-    const multiplier = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].multiplier : 0.80;
-    const adjustedVal = valuation?.estimated_value
-      ? valuation.estimated_value * multiplier
+    const tierPct = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].tierPercent : 0.50;
+    const adjustedVal = valuation?.value_range_low != null && valuation?.value_range_high != null
+      ? valuation.value_range_low + (valuation.value_range_high - valuation.value_range_low) * tierPct
       : null;
 
     const pd = valuation?.property_details;
@@ -456,15 +456,11 @@ export default function WMHWWidget() {
   const pd = valuation?.property_details;
   const rent = valuation?.rent_estimate;
   const comps = valuation?.comparables;
-  const multiplier = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].multiplier : null;
-  const adjustedValue = valuation?.estimated_value && multiplier !== null
-    ? valuation.estimated_value * multiplier
-    : null;
-  const adjustedLow = valuation?.value_range_low && multiplier !== null
-    ? valuation.value_range_low * multiplier
-    : null;
-  const adjustedHigh = valuation?.value_range_high && multiplier !== null
-    ? valuation.value_range_high * multiplier
+  const rangeLow = valuation?.value_range_low ?? null;
+  const rangeHigh = valuation?.value_range_high ?? null;
+  const tierPct = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].tierPercent : null;
+  const adjustedValue = rangeLow != null && rangeHigh != null && tierPct !== null
+    ? rangeLow + (rangeHigh - rangeLow) * tierPct
     : null;
 
   // Property type display label
@@ -658,9 +654,9 @@ export default function WMHWWidget() {
                               <p className={`font-semibold ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                                 {tier.label}
                               </p>
-                              {valuation?.estimated_value && (
+                              {valuation?.value_range_low != null && valuation?.value_range_high != null && (
                                 <p className="text-sm font-semibold text-[var(--text-primary)] whitespace-nowrap">
-                                  ~{formatCurrency(Math.round(valuation.estimated_value * tier.multiplier))}
+                                  ~{formatCurrency(Math.round(valuation.value_range_low + (valuation.value_range_high - valuation.value_range_low) * tier.tierPercent))}
                                 </p>
                               )}
                             </div>
@@ -751,7 +747,7 @@ export default function WMHWWidget() {
                 )}
 
                 {/* 4. Adjusted Value Display */}
-                {valuation.estimated_value && adjustedValue && (
+                {adjustedValue != null && (
                   <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-[var(--brand-yellow)] rounded-xl p-6 text-center">
                     <p className="text-sm text-[var(--text-secondary)] uppercase tracking-wide font-medium mb-2">
                       Adjusted Estimate
@@ -759,26 +755,26 @@ export default function WMHWWidget() {
                     <p className="text-4xl font-bold text-[var(--text-primary)] mb-1">
                       {formatCurrency(adjustedValue)}
                     </p>
-                    {adjustedLow && adjustedHigh && (
+                    {rangeLow != null && rangeHigh != null && (
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-base font-medium text-[var(--text-primary)]">
-                          <span>{formatCurrency(adjustedLow)}</span>
-                          <span>{formatCurrency(adjustedHigh)}</span>
+                          <span>{formatCurrency(rangeLow)}</span>
+                          <span>{formatCurrency(rangeHigh)}</span>
                         </div>
                         <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
                           <div
                             className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--brand-yellow)] to-amber-400 rounded-full"
                             style={{
-                              width: adjustedHigh > adjustedLow
-                                ? `${((adjustedValue - adjustedLow) / (adjustedHigh - adjustedLow)) * 100}%`
+                              width: rangeHigh > rangeLow
+                                ? `${((adjustedValue - rangeLow) / (rangeHigh - rangeLow)) * 100}%`
                                 : '50%',
                             }}
                           />
                           <div
                             className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-[var(--brand-yellow)] border-2 border-white rounded-full shadow-md"
                             style={{
-                              left: adjustedHigh > adjustedLow
-                                ? `clamp(0%, ${((adjustedValue - adjustedLow) / (adjustedHigh - adjustedLow)) * 100}%, calc(100% - 20px))`
+                              left: rangeHigh > rangeLow
+                                ? `clamp(0%, ${((adjustedValue - rangeLow) / (rangeHigh - rangeLow)) * 100}%, calc(100% - 20px))`
                                 : '50%',
                             }}
                           />
@@ -788,7 +784,7 @@ export default function WMHWWidget() {
                         </p>
                       </div>
                     )}
-                    {!(adjustedLow && adjustedHigh) && (
+                    {!(rangeLow != null && rangeHigh != null) && (
                       <p className="text-sm text-[var(--text-secondary)]">
                         Based on {conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label.toLowerCase() : ''} condition
                       </p>
