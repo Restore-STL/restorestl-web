@@ -1,6 +1,6 @@
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import CalendlyEmbed from '../components/book/CalendlyEmbed';
+import GoogleCalendarEmbed from '../components/book/GoogleCalendarEmbed';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -75,7 +75,7 @@ export default function BookPage() {
           </div>
         </section>
 
-        {/* Calendly Embed */}
+        {/* Calendar Embed */}
         <section className="py-14 bg-white">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-[var(--border-gray)]">
@@ -86,7 +86,7 @@ export default function BookPage() {
                 </h2>
               </div>
               <div className="p-2 sm:p-4">
-                <CalendlyEmbed />
+                <GoogleCalendarEmbed />
               </div>
             </div>
           </div>

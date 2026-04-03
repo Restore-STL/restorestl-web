@@ -106,7 +106,7 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong className="text-[var(--text-primary)]">
-                    Calendly
+                    Google Calendar
                   </strong>{' '}
                   &mdash; to schedule appointments with our team
                 </li>

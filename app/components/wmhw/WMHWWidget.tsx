@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * WMHW GA4 Events (via GTM dataLayer)
+ *
+ * Events pushed to window.dataLayer for GTM pickup:
+ * - wmhw_address_submitted: Address entered on screen 1
+ * - wmhw_screen2_viewed: Condition screen loaded after address entry
+ * - wmhw_condition_selected: User selected property condition
+ * - wmhw_report_clicked: "Email My Free Report" button clicked
+ * - wmhw_lead_submitted: Lead successfully submitted via API
+ * - wmhw_book_click: User clicked "Book a Call with Kevin"
+ * - wmhw_call_click: User clicked phone call link
+ *
+ * GTM Container: GTM-M7DX6C4X
+ * GA4 Property: G-KMKSDK02X9
+ */
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 declare global {
@@ -59,24 +75,26 @@ type ValuationResult = {
 };
 
 export default function WMHWWidget() {
-  const [step, setStep] = useState<'address' | 'result'>('address');
+  const [step, setStep] = useState<'address' | 'condition' | 'result'>('address');
   const [address, setAddress] = useState<AddressInput>({
     street_address: '', city: '', state: '', zip_code: ''
   });
   const [addressDisplay, setAddressDisplay] = useState('');
   const [autocompleteReady, setAutocompleteReady] = useState(false);
   const [showManualFields, setShowManualFields] = useState(false);
-  const [conditionIndex, setConditionIndex] = useState(2); // Default to Average
+  const [conditionIndex, setConditionIndex] = useState<number | null>(null);
   const [valuation, setValuation] = useState<ValuationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [selectedPulse, setSelectedPulse] = useState<number | null>(null);
+  const [nudgeCards, setNudgeCards] = useState(false);
 
   const autocompleteInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const sliderEngagedRef = useRef(false);
+  const conditionCardsRef = useRef<HTMLDivElement>(null);
 
   // Initialize classic Google Places Autocomplete on a standard <input>
   useEffect(() => {
@@ -186,13 +204,49 @@ export default function WMHWWidget() {
 
   // Scroll widget into view on step transitions
   useEffect(() => {
-    if (step === 'result') {
+    if (step === 'condition' || step === 'result') {
       const timeout = setTimeout(() => {
         document.getElementById('instant-offer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
       return () => clearTimeout(timeout);
     }
   }, [step]);
+
+  // Fire wmhw_screen2_viewed when condition screen loads
+  useEffect(() => {
+    if (step === 'condition') {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'wmhw_screen2_viewed',
+        address_zip: address.zip_code,
+      });
+    }
+  }, [step, address.zip_code]);
+
+  // Attention nudge: if user scrolls past condition cards without selecting
+  useEffect(() => {
+    if (step !== 'condition' || conditionIndex !== null) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Cards scrolled out of view without selection — nudge
+        if (!entry.isIntersecting) {
+          setNudgeCards(true);
+          // Scroll back to cards
+          conditionCardsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Remove nudge after animation
+          setTimeout(() => setNudgeCards(false), 1500);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (conditionCardsRef.current) {
+      observer.observe(conditionCardsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [step, conditionIndex]);
 
   const fetchValuation = useCallback(async (addressInput: AddressInput) => {
     const addressStr = `${addressInput.street_address}, ${addressInput.city}, ${addressInput.state} ${addressInput.zip_code}`;
@@ -253,7 +307,7 @@ export default function WMHWWidget() {
         estimated_value: v.estimated_value || null,
       });
 
-      setStep('result');
+      setStep('condition');
     } catch (err) {
       console.error('valuation failed', err);
       setError('Unable to get estimate. Please try again or contact us directly.');
@@ -261,6 +315,24 @@ export default function WMHWWidget() {
       setIsLoading(false);
       setLoadingMessage('');
     }
+  }
+
+  function onConditionSelect(index: number) {
+    setConditionIndex(index);
+    setSelectedPulse(index);
+    setNudgeCards(false);
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'wmhw_condition_selected',
+      condition_value: CONDITION_TIERS[index].label,
+    });
+
+    // Auto-advance after pulse animation
+    setTimeout(() => {
+      setSelectedPulse(null);
+      setStep('result');
+    }, 500);
   }
 
   async function onContactSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -285,14 +357,23 @@ export default function WMHWWidget() {
       return;
     }
 
+    // Fire report clicked event
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'wmhw_report_clicked',
+      condition_value: conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label : null,
+      address_zip: address.zip_code,
+    });
+
     // Split name into first/last
     const nameParts = nameRaw.split(/\s+/);
     const first_name = nameParts[0] || '';
     const last_name = nameParts.slice(1).join(' ') || first_name;
 
-    const selectedCondition = CONDITION_TIERS[conditionIndex].label;
-    const adjustedValue = valuation?.estimated_value
-      ? valuation.estimated_value * CONDITION_TIERS[conditionIndex].multiplier
+    const selectedCondition = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label : 'Average';
+    const multiplier = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].multiplier : 0.80;
+    const adjustedVal = valuation?.estimated_value
+      ? valuation.estimated_value * multiplier
       : null;
 
     const pd = valuation?.property_details;
@@ -315,7 +396,7 @@ export default function WMHWWidget() {
           address: fullAddress,
           condition: selectedCondition,
           estimated_value: valuation?.estimated_value ?? null,
-          adjusted_value: adjustedValue ? Math.round(adjustedValue) : null,
+          adjusted_value: adjustedVal ? Math.round(adjustedVal) : null,
           value_range_low: valuation?.value_range_low ?? null,
           value_range_high: valuation?.value_range_high ?? null,
           beds: pd?.beds ?? null,
@@ -337,7 +418,7 @@ export default function WMHWWidget() {
 
       // Store for /book page prefill
       sessionStorage.setItem('property_condition', selectedCondition);
-      sessionStorage.setItem('adjusted_value', adjustedValue ? String(Math.round(adjustedValue)) : '');
+      sessionStorage.setItem('adjusted_value', adjustedVal ? String(Math.round(adjustedVal)) : '');
       sessionStorage.setItem('user_name', nameRaw);
       sessionStorage.setItem('user_email', email);
       sessionStorage.setItem('user_phone', phone);
@@ -349,7 +430,7 @@ export default function WMHWWidget() {
         property_address: fullAddress,
         property_condition: selectedCondition,
         estimated_value: valuation?.estimated_value || null,
-        adjusted_value: adjustedValue ? Math.round(adjustedValue) : null,
+        adjusted_value: adjustedVal ? Math.round(adjustedVal) : null,
         timeline: null,
         path_selected: null,
         reason_for_selling: null,
@@ -375,14 +456,15 @@ export default function WMHWWidget() {
   const pd = valuation?.property_details;
   const rent = valuation?.rent_estimate;
   const comps = valuation?.comparables;
-  const adjustedValue = valuation?.estimated_value
-    ? valuation.estimated_value * CONDITION_TIERS[conditionIndex].multiplier
+  const multiplier = conditionIndex !== null ? CONDITION_TIERS[conditionIndex].multiplier : null;
+  const adjustedValue = valuation?.estimated_value && multiplier !== null
+    ? valuation.estimated_value * multiplier
     : null;
-  const adjustedLow = valuation?.value_range_low
-    ? valuation.value_range_low * CONDITION_TIERS[conditionIndex].multiplier
+  const adjustedLow = valuation?.value_range_low && multiplier !== null
+    ? valuation.value_range_low * multiplier
     : null;
-  const adjustedHigh = valuation?.value_range_high
-    ? valuation.value_range_high * CONDITION_TIERS[conditionIndex].multiplier
+  const adjustedHigh = valuation?.value_range_high && multiplier !== null
+    ? valuation.value_range_high * multiplier
     : null;
 
   // Property type display label
@@ -521,6 +603,77 @@ export default function WMHWWidget() {
               </form>
             )}
 
+            {/* Condition Selection Step */}
+            {step === 'condition' && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+                    One more thing &mdash; how&apos;s the property&apos;s condition?
+                  </h2>
+                  <p className="text-[var(--text-secondary)]">
+                    This directly affects your estimate. A home needing a new roof gets a very different number than one that&apos;s move-in ready.
+                  </p>
+                </div>
+
+                <div ref={conditionCardsRef} className="space-y-3">
+                  {CONDITION_TIERS.map((tier, i) => {
+                    const isSelected = conditionIndex === i;
+                    const isPulsing = selectedPulse === i;
+                    const isNudging = nudgeCards && conditionIndex === null;
+
+                    return (
+                      <button
+                        key={tier.label}
+                        type="button"
+                        onClick={() => onConditionSelect(i)}
+                        className={`
+                          w-full text-left p-4 rounded-xl border-2 transition-all duration-200
+                          min-h-[56px] cursor-pointer
+                          ${isSelected
+                            ? 'border-[var(--brand-yellow)] bg-yellow-50'
+                            : 'border-[var(--border-gray)] bg-white hover:border-gray-300 hover:bg-gray-50'
+                          }
+                          ${isPulsing ? 'animate-[pulse-glow_0.5s_ease-in-out]' : ''}
+                          ${isNudging ? 'animate-[nudge_0.4s_ease-in-out]' : ''}
+                        `}
+                      >
+                        <div className="flex items-start gap-3">
+                          {/* Selection indicator */}
+                          <div className={`
+                            flex-shrink-0 w-6 h-6 rounded-full border-2 mt-0.5
+                            flex items-center justify-center transition-all
+                            ${isSelected
+                              ? 'border-[var(--brand-yellow)] bg-[var(--brand-yellow)]'
+                              : 'border-gray-300'
+                            }
+                          `}>
+                            {isSelected && (
+                              <svg className="w-4 h-4 text-[var(--charcoal-deep)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-semibold ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+                              {tier.label}
+                            </p>
+                            <p className="text-sm text-[var(--text-secondary)] mt-0.5">
+                              {tier.desc}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Address context */}
+                <p className="text-xs text-[var(--text-secondary)] text-center">
+                  Estimating for {address.street_address}, {address.city}
+                </p>
+              </div>
+            )}
+
             {/* Result Step — Full enrichment display */}
             {step === 'result' && valuation && (
               <div className="space-y-6">
@@ -539,7 +692,32 @@ export default function WMHWWidget() {
                   )}
                 </div>
 
-                {/* 2. Property Stats Row */}
+                {/* 2. Condition Badge + Change Link */}
+                {conditionIndex !== null && (
+                  <div className="flex items-center justify-between bg-[var(--background-gray)] px-4 py-3 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-[var(--text-secondary)]">Condition:</span>
+                      <span className="inline-flex items-center gap-1.5 bg-[var(--brand-yellow)] text-[var(--charcoal-deep)] text-sm font-semibold px-3 py-1 rounded-full">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {CONDITION_TIERS[conditionIndex].label}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConditionIndex(null);
+                        setStep('condition');
+                      }}
+                      className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+
+                {/* 3. Property Stats Row */}
                 {(pd?.beds || pd?.baths || pd?.sqft || rent?.rent) && (
                   <div className="flex flex-wrap gap-3 justify-center">
                     {pd?.beds != null && (
@@ -565,48 +743,6 @@ export default function WMHWWidget() {
                   </div>
                 )}
 
-                {/* 3. Condition Slider */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">Property Condition</p>
-                    <span className="text-sm font-medium text-[var(--brand-yellow)]">{CONDITION_TIERS[conditionIndex].label}</span>
-                  </div>
-
-                  <input
-                    type="range"
-                    min="0"
-                    max="4"
-                    step="1"
-                    value={conditionIndex}
-                    onChange={(e) => {
-                      const newIndex = Number(e.target.value);
-                      setConditionIndex(newIndex);
-                      if ('vibrate' in navigator) {
-                        navigator.vibrate(10);
-                      }
-                      if (!sliderEngagedRef.current) {
-                        sliderEngagedRef.current = true;
-                        window.dataLayer = window.dataLayer || [];
-                        window.dataLayer.push({ event: 'wmhw_slider_engaged' });
-                      }
-                    }}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--brand-yellow)]"
-                  />
-
-                  <div className="flex justify-between mt-1 text-xs text-[var(--text-secondary)]">
-                    <span className="w-1/5 text-center">Poor</span>
-                    <span className="w-1/5 text-center">Fair</span>
-                    <span className="w-1/5 text-center">Avg</span>
-                    <span className="w-1/5 text-center">Good</span>
-                    <span className="w-1/5 text-center">Excellent</span>
-                  </div>
-
-                  <div className="bg-[var(--background-gray)] p-3 rounded-md border border-[var(--border-gray)] text-sm">
-                    <p className="font-medium mb-1 text-[var(--text-primary)]">{CONDITION_TIERS[conditionIndex].label}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{CONDITION_TIERS[conditionIndex].desc}</p>
-                  </div>
-                </div>
-
                 {/* 4. Adjusted Value Display */}
                 {valuation.estimated_value && adjustedValue && (
                   <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-[var(--brand-yellow)] rounded-xl p-6 text-center">
@@ -620,7 +756,7 @@ export default function WMHWWidget() {
                       {adjustedLow && adjustedHigh && (
                         <>Range: {formatCurrency(adjustedLow)} &ndash; {formatCurrency(adjustedHigh)} &middot; </>
                       )}
-                      Based on {CONDITION_TIERS[conditionIndex].label.toLowerCase()} condition
+                      Based on {conditionIndex !== null ? CONDITION_TIERS[conditionIndex].label.toLowerCase() : ''} condition
                     </p>
                   </div>
                 )}
@@ -756,9 +892,8 @@ export default function WMHWWidget() {
                     setAddress({ street_address: '', city: '', state: '', zip_code: '' });
                     setAddressDisplay('');
                     setValuation(null);
-                    setConditionIndex(2);
+                    setConditionIndex(null);
                     setContactSubmitted(false);
-                    sliderEngagedRef.current = false;
                   }}
                   className="w-full text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline transition-colors text-center"
                 >
@@ -769,6 +904,20 @@ export default function WMHWWidget() {
           </div>
         </div>
       </div>
+
+      {/* Keyframe animations for condition cards */}
+      <style jsx>{`
+        @keyframes pulse-glow {
+          0% { box-shadow: 0 0 0 0 rgba(255, 194, 0, 0.5); }
+          50% { box-shadow: 0 0 0 8px rgba(255, 194, 0, 0.2); }
+          100% { box-shadow: 0 0 0 0 rgba(255, 194, 0, 0); }
+        }
+        @keyframes nudge {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+      `}</style>
     </section>
   );
 }
