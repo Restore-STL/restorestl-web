@@ -85,7 +85,9 @@ export default function BookPage() {
                   Pick a time &mdash; Kevin&apos;s ready when you are
                 </h2>
               </div>
-              <GoogleCalendarEmbed />
+              <div className="p-2 sm:p-4">
+                <GoogleCalendarEmbed />
+              </div>
             </div>
           </div>
         </section>
