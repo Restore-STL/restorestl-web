@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
 // ---------------------------------------------------------------------------
 // API config (same pattern as WMHWWidget)
 // ---------------------------------------------------------------------------
-const API_BASE_URL = 'https://restorestl-backend-327709678368.us-central1.run.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://restorestl-backend-327709678368.us-central1.run.app';
 const API_KEY = process.env.NEXT_PUBLIC_RESTORESTL || '';
 
 // ---------------------------------------------------------------------------
