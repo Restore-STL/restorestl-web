@@ -560,44 +560,95 @@ export default function CapitalPartnerPage() {
       {step === 0 && (
         <div className="max-w-[860px] mx-auto px-8 mb-10">
           <div className="py-6 px-7 bg-white border border-[#eef1ea] rounded-[14px]">
-            <h1 className="font-[family-name:var(--font-heading)] text-[22px] text-[#0f172a] mb-3 font-extrabold">Capital Partner Application</h1>
-            <p className="text-[#374151] text-[14px] leading-relaxed mb-4">
+            <h1 className="font-[family-name:var(--font-heading)] text-[22px] text-[#0f172a] mb-2 font-extrabold">Capital Partner Application</h1>
+            <p className="text-[#374151] text-[14px] leading-relaxed mb-5">
               Restore STL works with a small network of trusted capital partners to fund real estate acquisitions across the St. Louis metro.
             </p>
 
-            <div className="text-[#374151] text-[14px] leading-relaxed mb-4">
-              <div className="font-semibold text-[#0f172a] mb-2">Are you an accredited investor or a friend of ours?</div>
-              <p className="mb-3">SEC guidelines allow us to work with accredited investors and individuals who have an existing relationship with our team. We&apos;ll confirm which applies to you at our meeting.</p>
-
-              <div className="font-semibold text-[#0f172a] mb-2">What does investing with us actually look like?</div>
-              <p className="mb-2">Investing in stocks fluctuates and nothing is guaranteed. Bonds and CDs are safe but offer low returns. We can&apos;t say investing in real estate is guaranteed or safe either — but here&apos;s how we protect your investment:</p>
-              <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li>We run title work before purchasing to make sure no previous liens exist on the property</li>
-                <li>We carry insurance on every property during the process — if anything happens, your investment is protected</li>
-                <li>Our 20+ years of experience and advanced analysis tools help us acquire properties below market value — we buy right, not with emotions</li>
-              </ul>
-
-              <div className="font-semibold text-[#0f172a] mb-2">How does it work?</div>
-              <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li>After we understand your comfort level, we target properties that fit within your price point</li>
-                <li>We find and evaluate the property, determine the acquisition price and rehab budget</li>
-                <li>While we have it under contract, we reach out to capital partners with suitable funds to cover the project</li>
-                <li>If the numbers make sense, there are two pieces of paperwork:
-                  <ul className="list-disc pl-5 mt-1 space-y-1">
-                    <li><strong>The Deed</strong> — gives you a recorded position on the property, just like a bank. If anything goes sideways, you can foreclose and recover the property</li>
-                    <li><strong>The Promissory Note</strong> — the terms of the loan including rate, duration, and payment schedule</li>
-                  </ul>
-                </li>
-              </ul>
-
-              <p className="mb-2">We typically need the capital for 4&ndash;6 months. When we sell the property or refinance, you are paid back in full with interest.</p>
-              <p className="mb-2">Typically one investor per property — but occasionally we structure a first and second position based on the numbers and availability.</p>
-              <p className="mb-3">Terms including interest rate and loan structure are <strong>finalized together at an in-person or virtual meeting</strong> before any commitment is made.</p>
+            {/* Key points with icons */}
+            <div className="grid gap-[10px] mb-5">
+              {[
+                { icon: '\uD83D\uDD12', bold: 'Your investment is secured', rest: ' by a recorded lien on the property' },
+                { icon: '\uD83C\uDFE0', bold: 'One investor per property', rest: ' \u2014 your capital is never pooled' },
+                { icon: '\uD83D\uDCCB', bold: 'Title search + insurance', rest: ' on every deal' },
+                { icon: '\uD83E\uDD1D', bold: 'All terms finalized together', rest: ' at an in-person or virtual meeting' },
+                { icon: '\u23F1\uFE0F', bold: 'Typical loan duration:', rest: ' 4\u20136 months' },
+              ].map(({ icon, bold, rest }) => (
+                <div key={bold} className="flex items-start gap-3">
+                  <span className="text-[18px] leading-none mt-[1px] flex-shrink-0">{icon}</span>
+                  <span className="text-[14px] text-[#374151] leading-snug"><strong className="text-[#0f172a]">{bold}</strong>{rest}</span>
+                </div>
+              ))}
             </div>
 
-            <p className="text-[#374151] text-[13.5px]">
+            <p className="text-[#374151] text-[13.5px] mb-5">
               <strong>Questions?</strong> Call Kevin at <a href="tel:+13147363311" className="text-[#0a8754]">(314) 736-3311</a>
             </p>
+
+            {/* Collapsible sections */}
+            <div className="grid gap-[6px]">
+              {[
+                {
+                  id: 'hdr_accredited',
+                  title: 'Are you an accredited investor or a friend of ours?',
+                  content: (
+                    <p>SEC guidelines allow us to work with accredited investors and individuals who have an existing relationship with our team. We&apos;ll confirm which applies to you at our meeting.</p>
+                  ),
+                },
+                {
+                  id: 'hdr_investing',
+                  title: 'What does investing with us actually look like?',
+                  content: (
+                    <>
+                      <p className="mb-2">Investing in stocks fluctuates and nothing is guaranteed. Bonds and CDs are safe but offer low returns. We can&apos;t say investing in real estate is guaranteed or safe either — but here&apos;s how we protect your investment:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>We run title work before purchasing to make sure no previous liens exist on the property</li>
+                        <li>We carry insurance on every property during the process — if anything happens, your investment is protected</li>
+                        <li>Our 20+ years of experience and advanced analysis tools help us acquire properties below market value — we buy right, not with emotions</li>
+                      </ul>
+                    </>
+                  ),
+                },
+                {
+                  id: 'hdr_how',
+                  title: 'How does it work?',
+                  content: (
+                    <ol className="list-decimal pl-5 space-y-2">
+                      <li>After we understand your comfort level, we target properties that fit within your price point</li>
+                      <li>We find and evaluate the property, determine the acquisition price and rehab budget</li>
+                      <li>While we have it under contract, we reach out to capital partners with suitable funds to cover the project</li>
+                      <li>If the numbers make sense, there are two pieces of paperwork:
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          <li><strong>The Deed</strong> — gives you a recorded position on the property, just like a bank. If anything goes sideways, you can foreclose and recover the property</li>
+                          <li><strong>The Promissory Note</strong> — the terms of the loan including rate, duration, and payment schedule</li>
+                        </ul>
+                      </li>
+                      <li>We typically need the capital for 4&ndash;6 months. When we sell the property or refinance, you are paid back in full with interest</li>
+                      <li>Typically one investor per property — but occasionally we structure a first and second position based on the numbers and availability</li>
+                    </ol>
+                  ),
+                },
+              ].map(({ id, title, content }) => (
+                <div key={id} className="border-l-[3px] border-[#0a8754] rounded-r-md overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleWhy(id)}
+                    className="w-full flex items-center gap-2 py-[10px] px-4 bg-transparent border-none cursor-pointer text-left font-[family-name:var(--font-body)]"
+                  >
+                    <span className={`text-[#0a8754] text-[12px] transition-transform duration-200 ${whyOpen[id] ? 'rotate-90' : ''}`}>&#9654;</span>
+                    <span className="text-[14px] font-semibold text-[#0f172a]">{title}</span>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-200 ease-in-out"
+                    style={{ maxHeight: whyOpen[id] ? '600px' : '0', opacity: whyOpen[id] ? 1 : 0 }}
+                  >
+                    <div className="px-4 pb-3 text-[13.5px] text-[#374151] leading-relaxed">
+                      {content}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
