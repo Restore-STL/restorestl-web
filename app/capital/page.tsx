@@ -155,8 +155,8 @@ export default function CapitalPartnerPage() {
         num_loans_funded: form.numLoansFunded,
         has_active_loans: form.hasActiveLoans === 'yes',
         active_loan_count: form.hasActiveLoans === 'yes' ? parseInt(form.activeLoanCount) || 0 : 0,
-        loan_amount_min: Number(form.loanAmountMin) || 0,
-        loan_amount_max: Number(form.loanAmountMax) || 0,
+        loan_amount_min: parseInt(form.loanAmountMin.replace(/[$,+]/g, '')) || 0,
+        loan_amount_max: parseInt(form.loanAmountMax.replace(/[$,+]/g, '')) || 0,
         preferred_terms: form.preferredTerms,
         property_types: form.propertyTypes,
         geo_preference: form.geoPreference,
@@ -207,21 +207,21 @@ export default function CapitalPartnerPage() {
     </div>
   );
 
-  const dollarField = (id: keyof FormData, label: string, placeholder: string, required: boolean) => (
+  const LOAN_AMOUNTS = ['$25,000', '$50,000', '$75,000', '$100,000', '$150,000', '$200,000', '$250,000', '$300,000', '$400,000', '$500,000+'];
+
+  const loanAmountSelect = (id: keyof FormData, label: string) => (
     <div>
       <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
-        {label}{required && <span className="text-[#c0392b] ml-[3px]">*</span>}
+        {label}
       </label>
-      <div className="relative">
-        <span className="absolute left-[13px] top-1/2 -translate-y-1/2 text-sm text-[#90a4ae]">$</span>
-        <input
-          type="number"
-          placeholder={placeholder}
-          value={(form[id] as string) || ''}
-          onChange={e => sf(id, e.target.value)}
-          className={`w-full pl-[28px] pr-[13px] py-[10px] text-sm text-[#1a2e28] bg-white border-[1.5px] rounded-lg outline-none transition-colors focus:border-[#0a8754] font-[family-name:var(--font-body)] ${errors.loanAmount ? 'border-[#c0392b]' : 'border-[#e2e8da]'}`}
-        />
-      </div>
+      <select
+        value={(form[id] as string) || ''}
+        onChange={e => sf(id, e.target.value)}
+        className={`w-full px-[13px] py-[10px] text-sm bg-white border-[1.5px] rounded-lg outline-none cursor-pointer transition-colors focus:border-[#0a8754] font-[family-name:var(--font-body)] ${form[id] ? 'text-[#1a2e28]' : 'text-[#4b5563]'} ${errors.loanAmount ? 'border-[#c0392b]' : 'border-[#e2e8da]'}`}
+      >
+        <option value="">Select amount</option>
+        {LOAN_AMOUNTS.map(amt => <option key={amt} value={amt}>{amt}</option>)}
+      </select>
     </div>
   );
 
@@ -233,7 +233,7 @@ export default function CapitalPartnerPage() {
       <select
         value={(form[id] as string) || ''}
         onChange={e => sf(id, e.target.value)}
-        className={`w-full px-[13px] py-[10px] text-sm bg-white border-[1.5px] rounded-lg outline-none cursor-pointer transition-colors focus:border-[#0a8754] font-[family-name:var(--font-body)] ${form[id] ? 'text-[#1a2e28]' : 'text-[#90a4ae]'} ${errors[id] ? 'border-[#c0392b]' : 'border-[#e2e8da]'}`}
+        className={`w-full px-[13px] py-[10px] text-sm bg-white border-[1.5px] rounded-lg outline-none cursor-pointer transition-colors focus:border-[#0a8754] font-[family-name:var(--font-body)] ${form[id] ? 'text-[#1a2e28]' : 'text-[#4b5563]'} ${errors[id] ? 'border-[#c0392b]' : 'border-[#e2e8da]'}`}
       >
         <option value="">{placeholder}</option>
         {items.map(item => <option key={item} value={item}>{item}</option>)}
@@ -258,7 +258,7 @@ export default function CapitalPartnerPage() {
               className={`px-[18px] py-[9px] rounded-[22px] text-[13.5px] cursor-pointer transition-all font-[family-name:var(--font-body)] ${
                 selected
                   ? 'border-2 border-[#0a8754] bg-[#0a8754] text-white font-semibold'
-                  : 'border-[1.5px] border-[#cfd8dc] bg-white text-[#4a5e56] font-normal'
+                  : 'border-[1.5px] border-[#cfd8dc] bg-white text-[#374151] font-normal'
               }`}
             >
               {item}
@@ -279,7 +279,7 @@ export default function CapitalPartnerPage() {
         {items.map(({ v, l }) => {
           const on = form[id] === v;
           return (
-            <button key={v} type="button" onClick={() => selRadio(id, v)} className="flex items-center gap-[10px] cursor-pointer text-sm text-[#4a5e56] text-left">
+            <button key={v} type="button" onClick={() => selRadio(id, v)} className="flex items-center gap-[10px] cursor-pointer text-sm text-[#374151] text-left">
               <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center transition-all ${on ? 'border-2 border-[#0a8754] bg-[#0a8754]' : 'border-2 border-[#cfd8dc] bg-white'}`}>
                 {on && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>
@@ -294,12 +294,12 @@ export default function CapitalPartnerPage() {
 
   const whyBlock = (id: string, text: string) => (
     <div>
-      <button type="button" onClick={() => toggleWhy(id)} className="flex items-center gap-[6px] mt-[10px] p-0 bg-transparent border-none cursor-pointer text-[13px] text-[#7c8a96] font-[family-name:var(--font-body)]">
-        <span className="inline-flex items-center justify-center w-[17px] h-[17px] rounded-full border-[1.5px] border-[#e2e8da] text-[10px] font-bold text-[#7c8a96] flex-shrink-0">?</span>
-        <span className="underline underline-offset-2">{whyOpen[id] ? 'Hide' : 'Why do we ask this?'}</span>
+      <button type="button" onClick={() => toggleWhy(id)} className="inline-flex items-center gap-[6px] mt-[10px] py-[5px] px-[12px] rounded-full bg-[#0a8754] border-none cursor-pointer text-[13px] text-white font-medium font-[family-name:var(--font-body)] hover:bg-[#087048] transition-colors">
+        <span className="text-[13px]">&#8505;&#65039;</span>
+        <span>{whyOpen[id] ? 'Hide' : 'Why do we ask this?'}</span>
       </button>
       {whyOpen[id] && (
-        <div className="mt-2 py-3 px-4 bg-[#f5f7f0] border-l-[3px] border-[#0a8754] rounded-r-md text-[13.5px] leading-relaxed text-[#4a5548]">
+        <div className="mt-2 py-3 px-4 bg-[#f5f7f0] border-l-[3px] border-[#0a8754] rounded-r-md text-[13.5px] leading-relaxed text-[#374151]">
           {text}
         </div>
       )}
@@ -311,13 +311,13 @@ export default function CapitalPartnerPage() {
     if (step === 0) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Tell us about yourself.</h2>
-        <p className="text-[#7c8a96] text-[15px] mb-8 leading-relaxed">Let&apos;s start with the basics.</p>
+        <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">Let&apos;s start with the basics.</p>
         <div className="grid gap-[22px]">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {inputField('name', 'Full Name', 'text', 'e.g., Mike Thompson', true)}
             <div>
               <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
-                Company / Entity Name <span className="font-normal text-[#90a4ae] ml-1">(optional)</span>
+                Company / Entity Name <span className="font-normal text-[#4b5563] ml-1">(optional)</span>
               </label>
               <input
                 type="text"
@@ -348,12 +348,12 @@ export default function CapitalPartnerPage() {
     if (step === 1) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Your lending background.</h2>
-        <p className="text-[#7c8a96] text-[15px] mb-6 leading-relaxed">Tell us about your experience with private lending.</p>
+        <p className="text-[#374151] text-[15px] mb-6 leading-relaxed">Tell us about your experience with private lending.</p>
 
         {/* Top-of-step explainer */}
         <div className="mb-8 py-[18px] px-6 bg-[#f5f7f0] border-[1.5px] border-[#a7f3d0] rounded-[10px] flex gap-3 items-start">
-          <span className="text-lg leading-none flex-shrink-0">i</span>
-          <div className="text-[#4a5e56] text-[13.5px] leading-relaxed">
+          <span className="text-lg leading-none flex-shrink-0">&#8505;&#65039;</span>
+          <div className="text-[#374151] text-[14px] leading-relaxed">
             Private money lending is straightforward: you lend capital for a real estate acquisition, your loan is secured by a first-position lien on the property (just like a bank mortgage), and you earn interest on your capital. When the property sells or is refinanced, you are paid back first — principal plus interest — before we take any profit. Every deal is different, so we finalize all terms together before anything moves forward.
           </div>
         </div>
@@ -379,10 +379,11 @@ export default function CapitalPartnerPage() {
             ], true)}
           </div>
 
-          {radioGroup('hasActiveLoans', 'Do you currently have any active loans out?', [
+          {radioGroup('hasActiveLoans', 'Do you currently have any active real estate loans?', [
             { v: 'yes', l: 'Yes' },
             { v: 'no', l: 'No' },
           ], true)}
+          {whyBlock('activeLoans', "We're asking about loans you've made on real estate \u2014 not your personal mortgage, auto loans, or other personal debt. If you've lent money to someone else for a real estate deal, that counts.")}
 
           {form.hasActiveLoans === 'yes' && (
             <div className="max-w-[200px]">
@@ -396,16 +397,21 @@ export default function CapitalPartnerPage() {
     if (step === 2) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Lending preferences.</h2>
-        <p className="text-[#7c8a96] text-[15px] mb-8 leading-relaxed">What types of loans and properties are you comfortable with?</p>
+        <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">What types of loans and properties are you comfortable with?</p>
         <div className="grid gap-[26px]">
           <div>
             <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
               What loan amount range are you comfortable with? <span className="text-[#c0392b] ml-[3px]">*</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {dollarField('loanAmountMin', 'Minimum', '50000', false)}
-              {dollarField('loanAmountMax', 'Maximum', '250000', false)}
+              {loanAmountSelect('loanAmountMin', 'Minimum')}
+              {loanAmountSelect('loanAmountMax', 'Maximum')}
             </div>
+            {form.loanAmountMin && form.loanAmountMax && (
+              <div className="mt-2 text-sm font-semibold text-[#0a8754]">
+                Selected range: {form.loanAmountMin} &ndash; {form.loanAmountMax}
+              </div>
+            )}
             {errors.loanAmount && <div className="mt-[5px] text-[12.5px] text-[#c0392b]">{errors.loanAmount}</div>}
             {whyBlock('amount', "This helps us match you with deals in your comfort zone. For example, if you're comfortable lending $50K\u2013$150K, we won't bring you a $400K deal.")}
           </div>
@@ -417,7 +423,32 @@ export default function CapitalPartnerPage() {
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
-          {chipGroup('propertyTypes', 'Property types you\'re open to', ['Single Family', 'Duplex', '3\u20134 Unit', '5+ Unit', 'Land / Lot'], true)}
+          <div>
+            <label className="block mb-[3px] text-sm font-semibold text-[#1a2e28]">
+              Property types you&apos;re open to <span className="text-[#c0392b] ml-[3px]">*</span>
+            </label>
+            <div className="text-sm text-[#4b5563] mb-[7px]">Select all that apply</div>
+            <div className="flex flex-wrap gap-2 mt-[2px]">
+              {['Single Family', 'Duplex', '3\u20134 Unit', '5+ Unit', 'Land / Lot'].map(item => {
+                const selected = form.propertyTypes.includes(item);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleChip('propertyTypes', item)}
+                    className={`px-[18px] py-[9px] rounded-[22px] text-[13.5px] cursor-pointer transition-all font-[family-name:var(--font-body)] ${
+                      selected
+                        ? 'border-2 border-[#0a8754] bg-[#0a8754] text-white font-semibold'
+                        : 'border-[1.5px] border-[#cfd8dc] bg-white text-[#374151] font-normal'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+            {errors.propertyTypes && <div className="mt-[5px] text-[12.5px] text-[#c0392b]">{errors.propertyTypes}</div>}
+          </div>
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
@@ -431,7 +462,7 @@ export default function CapitalPartnerPage() {
     if (step === 3) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Logistics.</h2>
-        <p className="text-[#7c8a96] text-[15px] mb-8 leading-relaxed">A few details about how you operate so we can match you efficiently.</p>
+        <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">A few details about how you operate so we can match you efficiently.</p>
         <div className="grid gap-[26px]">
           <div className="max-w-[420px]">
             {selectField('fundingSpeed', 'How quickly can you typically fund a loan?', [
@@ -482,7 +513,7 @@ export default function CapitalPartnerPage() {
     if (step === 4) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Almost done.</h2>
-        <p className="text-[#7c8a96] text-[15px] mb-8 leading-relaxed">Just a couple more things and you&apos;re all set.</p>
+        <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">Just a couple more things and you&apos;re all set.</p>
         <div className="grid gap-[26px]">
           {radioGroup('isAccredited', 'Are you an accredited investor?', [
             { v: 'Yes', l: 'Yes' },
@@ -504,7 +535,7 @@ export default function CapitalPartnerPage() {
 
           <div>
             <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
-              Anything else you&apos;d like us to know? <span className="font-normal text-[#90a4ae] ml-1">(optional)</span>
+              Anything else you&apos;d like us to know? <span className="font-normal text-[#4b5563] ml-1">(optional)</span>
             </label>
             <textarea
               placeholder="Questions, preferences, concerns — anything at all..."
@@ -534,7 +565,7 @@ export default function CapitalPartnerPage() {
           <h1 className="font-[family-name:var(--font-heading)] text-4xl text-[#1a2e28] mb-[14px] font-bold">
             Thank you, {(form.name || 'there').split(' ')[0]}.
           </h1>
-          <p className="text-[#4a5e56] text-base leading-relaxed mb-9">
+          <p className="text-[#374151] text-base leading-relaxed mb-9">
             Kevin will reach out within 48 hours to schedule a meeting where you&apos;ll review opportunities and finalize terms together. No commitment is made until you&apos;ve reviewed a specific deal and agreed to terms.
           </p>
 
@@ -550,16 +581,16 @@ export default function CapitalPartnerPage() {
                 <div className="w-[30px] h-[30px] rounded-full bg-[#0a8754] text-white flex items-center justify-center text-[13px] font-bold flex-shrink-0 mt-[1px]">{n}</div>
                 <div>
                   <div className="font-semibold text-[#1a2e28] text-[15px] mb-[3px]">{title}</div>
-                  <div className="text-[#7c8a96] text-[13.5px]">{sub}</div>
+                  <div className="text-[#374151] text-[13.5px]">{sub}</div>
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="text-[#90a4ae] text-[13px] mt-7">
+          <p className="text-[#4b5563] text-[13px] mt-7">
             Your information is kept strictly confidential and is never shared outside of Restore STL.
           </p>
-          <p className="text-[#90a4ae] text-[13px] mt-3">
+          <p className="text-[#4b5563] text-[13px] mt-3">
             Questions? Call Kevin at <a href="tel:+13147363311" className="text-[#0a8754]">(314) 736-3311</a>
           </p>
         </div>
@@ -575,7 +606,7 @@ export default function CapitalPartnerPage() {
         <span style={{ fontFamily: 'var(--font-heading)', fontSize: '18px', fontWeight: 800, color: '#1e293b', letterSpacing: '-0.3px' }}>
           Restore <span style={{ color: '#ffc200' }}>STL</span>
         </span>
-        <span className="text-xs text-[#90a4ae] font-medium tracking-wider uppercase">Capital Partners</span>
+        <span className="text-xs text-[#4b5563] font-medium tracking-wider uppercase">Capital Partners</span>
       </div>
 
       {/* Progress */}
@@ -585,9 +616,9 @@ export default function CapitalPartnerPage() {
             <div key={i} className={`flex-1 h-[3px] rounded-sm transition-colors duration-300 ${i <= step ? 'bg-[#0a8754]' : 'bg-[#dce0d6]'}`} />
           ))}
         </div>
-        <div className="flex justify-between text-xs text-[#90a4ae] mb-9">
+        <div className="flex justify-between text-xs text-[#4b5563] mb-9">
           <span>Step {step + 1} of 5</span>
-          <span className="font-semibold text-[#4a5e56]">{STEPS[step]}</span>
+          <span className="font-semibold text-[#374151]">{STEPS[step]}</span>
         </div>
       </div>
 
@@ -596,11 +627,11 @@ export default function CapitalPartnerPage() {
         <div className="max-w-[860px] mx-auto px-8 mb-10">
           <div className="py-6 px-7 bg-white border border-[#eef1ea] rounded-[14px]">
             <h1 className="font-[family-name:var(--font-heading)] text-[22px] text-[#0f172a] mb-3 font-extrabold">Capital Partner Application</h1>
-            <p className="text-[#4a5e56] text-[14px] leading-relaxed mb-4">
+            <p className="text-[#374151] text-[14px] leading-relaxed mb-4">
               Restore STL works with a small network of trusted lending partners to fund real estate acquisitions across the St. Louis metro.
             </p>
 
-            <div className="text-[#4a5e56] text-[14px] leading-relaxed mb-4">
+            <div className="text-[#374151] text-[14px] leading-relaxed mb-4">
               <div className="font-semibold text-[#0f172a] mb-2">How it works:</div>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Each loan is secured by a <strong>first-position lien</strong> on the property &mdash; your capital is never co-mingled with other lenders</li>
@@ -610,7 +641,7 @@ export default function CapitalPartnerPage() {
               </ul>
             </div>
 
-            <div className="text-[#4a5e56] text-[14px] leading-relaxed mb-4">
+            <div className="text-[#374151] text-[14px] leading-relaxed mb-4">
               <div className="font-semibold text-[#0f172a] mb-2">How you get paid:</div>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Fix &amp; flip deals:</strong> After we acquire, renovate, and sell the property, you are paid back <strong>first at closing</strong> &mdash; principal plus agreed-upon interest &mdash; before we take any profit</li>
@@ -619,7 +650,7 @@ export default function CapitalPartnerPage() {
               </ul>
             </div>
 
-            <p className="text-[#7c8a96] text-[13.5px]">
+            <p className="text-[#374151] text-[13.5px]">
               <strong>Questions?</strong> Call Kevin at <a href="tel:+13147363311" className="text-[#0a8754]">(314) 736-3311</a>
             </p>
           </div>
@@ -633,7 +664,7 @@ export default function CapitalPartnerPage() {
         {/* Navigation */}
         <div className={`flex mt-12 pt-6 border-t border-[#eef1ea] ${step > 0 ? 'justify-between' : 'justify-end'}`}>
           {step > 0 && (
-            <button type="button" onClick={goBack} className="py-3 px-7 rounded-lg border-[1.5px] border-[#e2e8da] bg-white text-[#4a5e56] text-sm font-semibold cursor-pointer font-[family-name:var(--font-body)]">
+            <button type="button" onClick={goBack} className="py-3 px-7 rounded-lg border-[1.5px] border-[#e2e8da] bg-white text-[#374151] text-sm font-semibold cursor-pointer font-[family-name:var(--font-body)]">
               &larr; Back
             </button>
           )}
