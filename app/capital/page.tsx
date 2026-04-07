@@ -11,7 +11,8 @@ const API_KEY = process.env.NEXT_PUBLIC_RESTORESTL || '';
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-const STEPS = ['About You', 'Lending Background', 'Lending Preferences', 'Logistics', 'Final Details'] as const;
+const STEPS = ['About You', 'Lending Background', 'Lending Preferences', 'Final Details'] as const;
+const LOAN_AMOUNTS = ['$25,000', '$50,000', '$75,000', '$100,000', '$150,000', '$200,000', '$250,000', '$300,000', '$400,000', '$500,000+'];
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,16 +30,14 @@ interface FormData {
   numLoansFunded: string;
   hasActiveLoans: string;
   activeLoanCount: string;
-  loanAmountMin: string;
   loanAmountMax: string;
   preferredTerms: string[];
   propertyTypes: string[];
   geoPreference: string;
   fundingSpeed: string;
-  requiresAppraisal: string;
   lendingEntityType: string;
-  usesServicer: string;
-  isAccredited: string;
+  interestPaymentPreference: string;
+  investorRelationshipType: string;
   readyNow: string;
   additionalNotes: string;
 }
@@ -48,11 +47,10 @@ const INITIAL_FORM: FormData = {
   relationshipSource: '', referralName: '',
   lendingExperience: '', numLoansFunded: '',
   hasActiveLoans: '', activeLoanCount: '',
-  loanAmountMin: '', loanAmountMax: '',
+  loanAmountMax: '',
   preferredTerms: [], propertyTypes: [], geoPreference: '',
-  fundingSpeed: '', requiresAppraisal: '',
-  lendingEntityType: '', usesServicer: '',
-  isAccredited: '', readyNow: '', additionalNotes: '',
+  fundingSpeed: '', lendingEntityType: '', interestPaymentPreference: '',
+  investorRelationshipType: '', readyNow: '', additionalNotes: '',
 };
 
 // ---------------------------------------------------------------------------
@@ -67,7 +65,6 @@ export default function CapitalPartnerPage() {
   const [submitError, setSubmitError] = useState('');
   const [whyOpen, setWhyOpen] = useState<Record<string, boolean>>({});
 
-  // --- helpers ---
   const sf = useCallback((key: keyof FormData, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
     setErrors(prev => { const n = { ...prev }; delete n[key]; return n; });
@@ -109,19 +106,16 @@ export default function CapitalPartnerPage() {
       if (form.hasActiveLoans === 'yes' && !form.activeLoanCount.trim()) e.activeLoanCount = 'Please enter a number';
     }
     if (step === 2) {
-      if (!form.loanAmountMin.trim() || !form.loanAmountMax.trim()) e.loanAmount = 'Both min and max are required';
+      if (!form.loanAmountMax) e.loanAmountMax = 'Please select one';
       if (!form.preferredTerms.length) e.preferredTerms = 'Select at least one';
       if (!form.propertyTypes.length) e.propertyTypes = 'Select at least one';
       if (!form.geoPreference) e.geoPreference = 'Please select one';
+      if (!form.fundingSpeed) e.fundingSpeed = 'Please select one';
+      if (!form.lendingEntityType) e.lendingEntityType = 'Please select one';
+      if (!form.interestPaymentPreference) e.interestPaymentPreference = 'Please select one';
     }
     if (step === 3) {
-      if (!form.fundingSpeed) e.fundingSpeed = 'Please select one';
-      if (!form.requiresAppraisal) e.requiresAppraisal = 'Please select one';
-      if (!form.lendingEntityType) e.lendingEntityType = 'Please select one';
-      if (!form.usesServicer) e.usesServicer = 'Please select one';
-    }
-    if (step === 4) {
-      if (!form.isAccredited) e.isAccredited = 'Please select one';
+      if (!form.investorRelationshipType) e.investorRelationshipType = 'Please select one';
       if (!form.readyNow) e.readyNow = 'Please select one';
     }
     setErrors(e);
@@ -131,13 +125,12 @@ export default function CapitalPartnerPage() {
   // --- navigation ---
   const goNext = useCallback(async () => {
     if (!validate()) return;
-    if (step < 4) {
+    if (step < 3) {
       setStep(s => s + 1);
       window.scrollTo(0, 0);
       return;
     }
 
-    // Step 4 — submit
     setIsSubmitting(true);
     setSubmitError('');
     try {
@@ -155,16 +148,14 @@ export default function CapitalPartnerPage() {
         num_loans_funded: form.numLoansFunded,
         has_active_loans: form.hasActiveLoans === 'yes',
         active_loan_count: form.hasActiveLoans === 'yes' ? parseInt(form.activeLoanCount) || 0 : 0,
-        loan_amount_min: parseInt(form.loanAmountMin.replace(/[$,+]/g, '')) || 0,
         loan_amount_max: parseInt(form.loanAmountMax.replace(/[$,+]/g, '')) || 0,
         preferred_terms: form.preferredTerms,
         property_types: form.propertyTypes,
         geo_preference: form.geoPreference,
         funding_speed: form.fundingSpeed,
-        requires_appraisal: form.requiresAppraisal,
         lending_entity_type: form.lendingEntityType,
-        uses_servicer: form.usesServicer === 'yes',
-        is_accredited: form.isAccredited,
+        interest_payment_preference: form.interestPaymentPreference,
+        investor_relationship_type: form.investorRelationshipType,
         ready_now: form.readyNow,
         additional_notes: form.additionalNotes,
       };
@@ -207,24 +198,6 @@ export default function CapitalPartnerPage() {
     </div>
   );
 
-  const LOAN_AMOUNTS = ['$25,000', '$50,000', '$75,000', '$100,000', '$150,000', '$200,000', '$250,000', '$300,000', '$400,000', '$500,000+'];
-
-  const loanAmountSelect = (id: keyof FormData, label: string) => (
-    <div>
-      <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
-        {label}
-      </label>
-      <select
-        value={(form[id] as string) || ''}
-        onChange={e => sf(id, e.target.value)}
-        className={`w-full px-[13px] py-[10px] text-sm bg-white border-[1.5px] rounded-lg outline-none cursor-pointer transition-colors focus:border-[#0a8754] font-[family-name:var(--font-body)] ${form[id] ? 'text-[#1a2e28]' : 'text-[#4b5563]'} ${errors.loanAmount ? 'border-[#c0392b]' : 'border-[#e2e8da]'}`}
-      >
-        <option value="">Select amount</option>
-        {LOAN_AMOUNTS.map(amt => <option key={amt} value={amt}>{amt}</option>)}
-      </select>
-    </div>
-  );
-
   const selectField = (id: keyof FormData, label: string, items: string[], required: boolean, placeholder = 'Select one') => (
     <div>
       <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
@@ -242,11 +215,12 @@ export default function CapitalPartnerPage() {
     </div>
   );
 
-  const chipGroup = (id: keyof FormData, label: string, items: string[], required: boolean) => (
+  const chipGroup = (id: keyof FormData, label: string, items: string[], required: boolean, helperText?: string) => (
     <div>
-      <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
+      <label className="block mb-[3px] text-sm font-semibold text-[#1a2e28]">
         {label}{required && <span className="text-[#c0392b] ml-[3px]">*</span>}
       </label>
+      {helperText && <div className="text-sm text-[#4b5563] mb-[7px]">{helperText}</div>}
       <div className="flex flex-wrap gap-2 mt-[2px]">
         {items.map(item => {
           const selected = (form[id] as string[]).includes(item);
@@ -308,6 +282,7 @@ export default function CapitalPartnerPage() {
 
   // --- step renderers ---
   const stepContent = () => {
+    // ── Step 1: About You ──
     if (step === 0) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Tell us about yourself.</h2>
@@ -345,16 +320,16 @@ export default function CapitalPartnerPage() {
       </div>
     );
 
+    // ── Step 2: Lending Background ──
     if (step === 1) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Your lending background.</h2>
         <p className="text-[#374151] text-[15px] mb-6 leading-relaxed">Tell us about your experience with private lending.</p>
 
-        {/* Top-of-step explainer */}
         <div className="mb-8 py-[18px] px-6 bg-[#f5f7f0] border-[1.5px] border-[#a7f3d0] rounded-[10px] flex gap-3 items-start">
           <span className="text-lg leading-none flex-shrink-0">&#8505;&#65039;</span>
           <div className="text-[#374151] text-[14px] leading-relaxed">
-            Private money lending is straightforward: you lend capital for a real estate acquisition, your loan is secured by a first-position lien on the property (just like a bank mortgage), and you earn interest on your capital. When the property sells or is refinanced, you are paid back first — principal plus interest — before we take any profit. Every deal is different, so we finalize all terms together before anything moves forward.
+            Private money lending is straightforward: you lend capital for a real estate acquisition, your loan is secured by a recorded lien position on the property (typically first position), and you earn interest on your capital. When the property sells or is refinanced, you are paid back first — principal plus interest — before we take any profit. Every deal is different, so we finalize all terms together before anything moves forward.
           </div>
         </div>
 
@@ -394,76 +369,34 @@ export default function CapitalPartnerPage() {
       </div>
     );
 
+    // ── Step 3: Lending Preferences (includes funding speed, entity type, interest pref) ──
     if (step === 2) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Lending preferences.</h2>
         <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">What types of loans and properties are you comfortable with?</p>
         <div className="grid gap-[26px]">
-          <div>
-            <label className="block mb-[7px] text-sm font-semibold text-[#1a2e28]">
-              What loan amount range are you comfortable with? <span className="text-[#c0392b] ml-[3px]">*</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {loanAmountSelect('loanAmountMin', 'Minimum')}
-              {loanAmountSelect('loanAmountMax', 'Maximum')}
-            </div>
-            {form.loanAmountMin && form.loanAmountMax && (
-              <div className="mt-2 text-sm font-semibold text-[#0a8754]">
-                Selected range: {form.loanAmountMin} &ndash; {form.loanAmountMax}
-              </div>
-            )}
-            {errors.loanAmount && <div className="mt-[5px] text-[12.5px] text-[#c0392b]">{errors.loanAmount}</div>}
-            {whyBlock('amount', "This helps us match you with deals in your comfort zone. For example, if you're comfortable lending $50K\u2013$150K, we won't bring you a $400K deal.")}
+          <div className="max-w-[420px]">
+            {selectField('loanAmountMax', 'What is the most you\'d be comfortable lending on a single deal?', LOAN_AMOUNTS, true, 'Select amount')}
+            {whyBlock('amount', "This helps us match you with deals in your comfort zone. For example, if you're comfortable lending up to $150K, we won't bring you a $400K deal.")}
           </div>
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
-          {chipGroup('preferredTerms', 'Preferred loan duration', ['6 months', '12 months', '18 months', '24 months', 'Flexible'], true)}
-          {whyBlock('terms', "Most of our acquisitions are short-term holds \u2014 typically 6 to 18 months. On a flip, you're paid back when the property sells. On a BRRRR (Buy, Rehab, Rent, Refinance, Repeat), you're paid back when we refinance into permanent financing. Select all timeframes you'd consider. We'll confirm exact terms on each deal before you commit.")}
+          {chipGroup('preferredTerms', 'Preferred loan duration', ['Less than 1 month', '3 months', '6 months', '9 months', '12 months', 'Long term (over a year)'], true, 'Select all that apply')}
+          {whyBlock('terms', "We typically need capital for 4\u20136 months. When we sell the property or refinance, you are paid back in full with interest. Select all timeframes you'd consider. We'll confirm exact terms on each deal before you commit.")}
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
-          <div>
-            <label className="block mb-[3px] text-sm font-semibold text-[#1a2e28]">
-              Property types you&apos;re open to <span className="text-[#c0392b] ml-[3px]">*</span>
-            </label>
-            <div className="text-sm text-[#4b5563] mb-[7px]">Select all that apply</div>
-            <div className="flex flex-wrap gap-2 mt-[2px]">
-              {['Single Family', 'Duplex', '3\u20134 Unit', '5+ Unit', 'Land / Lot'].map(item => {
-                const selected = form.propertyTypes.includes(item);
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => toggleChip('propertyTypes', item)}
-                    className={`px-[18px] py-[9px] rounded-[22px] text-[13.5px] cursor-pointer transition-all font-[family-name:var(--font-body)] ${
-                      selected
-                        ? 'border-2 border-[#0a8754] bg-[#0a8754] text-white font-semibold'
-                        : 'border-[1.5px] border-[#cfd8dc] bg-white text-[#374151] font-normal'
-                    }`}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
-            </div>
-            {errors.propertyTypes && <div className="mt-[5px] text-[12.5px] text-[#c0392b]">{errors.propertyTypes}</div>}
-          </div>
+          {chipGroup('propertyTypes', 'Property types you\'re open to', ['Single Family', 'Multi-family', 'Commercial', 'Anything'], true, 'Select all that apply')}
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
           <div className="max-w-[420px]">
             {selectField('geoPreference', 'Geographic preference', ['St. Louis metro only', 'Anywhere in Missouri', 'Open to other markets'], true)}
           </div>
-        </div>
-      </div>
-    );
 
-    if (step === 3) return (
-      <div>
-        <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Logistics.</h2>
-        <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">A few details about how you operate so we can match you efficiently.</p>
-        <div className="grid gap-[26px]">
+          <hr className="border-none border-t border-[#eef1ea]" />
+
           <div className="max-w-[420px]">
             {selectField('fundingSpeed', 'How quickly can you typically fund a loan?', [
               'Within 48 hours',
@@ -472,17 +405,6 @@ export default function CapitalPartnerPage() {
               '30+ days',
               'Depends on the deal',
             ], true)}
-          </div>
-
-          <hr className="border-none border-t border-[#eef1ea]" />
-
-          <div className="max-w-[420px]">
-            {selectField('requiresAppraisal', 'Do you require a third-party appraisal?', [
-              'Yes, always',
-              "No \u2014 I trust the team's numbers",
-              'Depends on the deal',
-            ], true)}
-            {whyBlock('appraisal', "We provide a full deal analysis on every property including ARV (after-repair value), comparable sales, and repair estimates. Some lenders also want an independent appraisal \u2014 either way works.")}
           </div>
 
           <hr className="border-none border-t border-[#eef1ea]" />
@@ -500,27 +422,29 @@ export default function CapitalPartnerPage() {
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
-          {radioGroup('usesServicer', 'Do you use a loan servicing company?', [
-            { v: 'yes', l: 'Yes' },
-            { v: 'no', l: 'No' },
-            { v: 'whats_that', l: "What's that?" },
+          {radioGroup('interestPaymentPreference', 'How would you prefer to receive interest payments?', [
+            { v: 'Monthly payments during the loan', l: 'Monthly payments during the loan' },
+            { v: 'Lump sum when the loan matures', l: 'Lump sum when the loan matures' },
+            { v: "No preference — let's discuss", l: "No preference \u2014 let's discuss" },
           ], true)}
-          {whyBlock('servicer', "A loan servicer collects payments and manages the loan paperwork on your behalf. If you don't use one, we handle payments directly. We'll discuss what makes sense at our meeting.")}
+          {whyBlock('interest', "You can choose to receive interest payments monthly throughout the loan, or receive all interest plus your principal back in one lump sum when the property sells or refinances. Either way, the total interest earned is the same.")}
         </div>
       </div>
     );
 
-    if (step === 4) return (
+    // ── Step 4: Final Details ──
+    if (step === 3) return (
       <div>
         <h2 className="font-[family-name:var(--font-heading)] text-[28px] text-[#1a2e28] mb-2 font-extrabold">Almost done.</h2>
         <p className="text-[#374151] text-[15px] mb-8 leading-relaxed">Just a couple more things and you&apos;re all set.</p>
         <div className="grid gap-[26px]">
-          {radioGroup('isAccredited', 'Are you an accredited investor?', [
-            { v: 'Yes', l: 'Yes' },
-            { v: 'No', l: 'No' },
-            { v: 'Not sure', l: "I'm not sure" },
+          {radioGroup('investorRelationshipType', 'What best describes your relationship with Restore STL?', [
+            { v: 'I am an accredited investor', l: 'I am an accredited investor' },
+            { v: 'I am a friend or family member of the team', l: 'I am a friend or family member of the team' },
+            { v: 'Both — accredited investor and friend/family', l: 'Both \u2014 accredited investor and friend/family' },
+            { v: "I'm not sure", l: "I'm not sure" },
           ], true)}
-          {whyBlock('accredited', "An accredited investor is someone with a net worth over $1M (excluding primary residence) or annual income over $200K ($300K joint). This doesn't affect whether you can lend \u2014 it helps us understand your financial profile. If you're not sure, no worries \u2014 we'll discuss it.")}
+          {whyBlock('relationship', "Why does this matter? SEC guidelines allow us to work with two types of capital partners: accredited investors (individuals with a net worth over $1M excluding primary residence, or annual income over $200K / $300K joint) and people who have an existing personal relationship with our team. If you're not sure which applies to you, no worries \u2014 we'll discuss it at our meeting.")}
 
           <hr className="border-none border-t border-[#eef1ea]" />
 
@@ -574,7 +498,7 @@ export default function CapitalPartnerPage() {
             {[
               { n: 1, title: 'Kevin reviews your application', sub: 'Usually within 48 hours.' },
               { n: 2, title: 'You\u2019ll schedule a call or in-person meeting', sub: 'To walk through opportunities and answer any questions.' },
-              { n: 3, title: 'When a deal fits your criteria, we bring it to you', sub: 'With a full analysis \u2014 ARV, comps, repair estimates, and projected returns.' },
+              { n: 3, title: 'When a deal fits your criteria, we bring it to you', sub: 'With a full analysis \u2014 comps, repair estimates, and projected returns.' },
               { n: 4, title: 'You review the numbers, agree to terms, and fund at closing', sub: 'No surprises. You always know the deal before committing.' },
             ].map(({ n, title, sub }, i) => (
               <div key={n} className={`flex gap-[14px] ${i < 3 ? 'mb-6' : ''}`}>
@@ -585,6 +509,16 @@ export default function CapitalPartnerPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="bg-white border border-[#eef1ea] rounded-[14px] py-7 px-8 text-left mt-5">
+            <div className="font-semibold text-[#1a2e28] text-[15px] mb-4">How we protect your investment:</div>
+            <ul className="list-disc pl-5 space-y-2 text-[#374151] text-[14px] leading-relaxed">
+              <li>Title search before every purchase</li>
+              <li>Insurance carried on every property during the process</li>
+              <li>Recorded deed giving you a secured lien position</li>
+              <li>20+ years of local market experience</li>
+            </ul>
           </div>
 
           <p className="text-[#4b5563] text-[13px] mt-7">
@@ -612,12 +546,12 @@ export default function CapitalPartnerPage() {
       {/* Progress */}
       <div className="max-w-[860px] mx-auto pt-7 px-8">
         <div className="flex gap-[5px] mb-2">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className={`flex-1 h-[3px] rounded-sm transition-colors duration-300 ${i <= step ? 'bg-[#0a8754]' : 'bg-[#dce0d6]'}`} />
           ))}
         </div>
         <div className="flex justify-between text-xs text-[#4b5563] mb-9">
-          <span>Step {step + 1} of 5</span>
+          <span>Step {step + 1} of 4</span>
           <span className="font-semibold text-[#374151]">{STEPS[step]}</span>
         </div>
       </div>
@@ -628,26 +562,37 @@ export default function CapitalPartnerPage() {
           <div className="py-6 px-7 bg-white border border-[#eef1ea] rounded-[14px]">
             <h1 className="font-[family-name:var(--font-heading)] text-[22px] text-[#0f172a] mb-3 font-extrabold">Capital Partner Application</h1>
             <p className="text-[#374151] text-[14px] leading-relaxed mb-4">
-              Restore STL works with a small network of trusted lending partners to fund real estate acquisitions across the St. Louis metro.
+              Restore STL works with a small network of trusted capital partners to fund real estate acquisitions across the St. Louis metro.
             </p>
 
             <div className="text-[#374151] text-[14px] leading-relaxed mb-4">
-              <div className="font-semibold text-[#0f172a] mb-2">How it works:</div>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Each loan is secured by a <strong>first-position lien</strong> on the property &mdash; your capital is never co-mingled with other lenders</li>
-                <li>Terms including interest rate, loan duration, and structure are <strong>finalized together at an in-person or virtual meeting</strong> before any commitment</li>
-                <li>Rates vary by deal based on property type, acquisition price, and timeline</li>
-                <li>This application helps us understand your lending preferences so we can match you with the right opportunities</li>
-              </ul>
-            </div>
+              <div className="font-semibold text-[#0f172a] mb-2">Are you an accredited investor or a friend of ours?</div>
+              <p className="mb-3">SEC guidelines allow us to work with accredited investors and individuals who have an existing relationship with our team. We&apos;ll confirm which applies to you at our meeting.</p>
 
-            <div className="text-[#374151] text-[14px] leading-relaxed mb-4">
-              <div className="font-semibold text-[#0f172a] mb-2">How you get paid:</div>
-              <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Fix &amp; flip deals:</strong> After we acquire, renovate, and sell the property, you are paid back <strong>first at closing</strong> &mdash; principal plus agreed-upon interest &mdash; before we take any profit</li>
-                <li><strong>BRRRR deals (Buy, Rehab, Rent, Refinance, Repeat):</strong> You are paid back in full when we refinance into long-term financing, typically within 6&ndash;18 months</li>
-                <li>In both cases, <strong>you are paid before we are.</strong> Your capital is returned first, every time.</li>
+              <div className="font-semibold text-[#0f172a] mb-2">What does investing with us actually look like?</div>
+              <p className="mb-2">Investing in stocks fluctuates and nothing is guaranteed. Bonds and CDs are safe but offer low returns. We can&apos;t say investing in real estate is guaranteed or safe either — but here&apos;s how we protect your investment:</p>
+              <ul className="list-disc pl-5 space-y-1 mb-3">
+                <li>We run title work before purchasing to make sure no previous liens exist on the property</li>
+                <li>We carry insurance on every property during the process — if anything happens, your investment is protected</li>
+                <li>Our 20+ years of experience and advanced analysis tools help us acquire properties below market value — we buy right, not with emotions</li>
               </ul>
+
+              <div className="font-semibold text-[#0f172a] mb-2">How does it work?</div>
+              <ul className="list-disc pl-5 space-y-1 mb-3">
+                <li>After we understand your comfort level, we target properties that fit within your price point</li>
+                <li>We find and evaluate the property, determine the acquisition price and rehab budget</li>
+                <li>While we have it under contract, we reach out to capital partners with suitable funds to cover the project</li>
+                <li>If the numbers make sense, there are two pieces of paperwork:
+                  <ul className="list-disc pl-5 mt-1 space-y-1">
+                    <li><strong>The Deed</strong> — gives you a recorded position on the property, just like a bank. If anything goes sideways, you can foreclose and recover the property</li>
+                    <li><strong>The Promissory Note</strong> — the terms of the loan including rate, duration, and payment schedule</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <p className="mb-2">We typically need the capital for 4&ndash;6 months. When we sell the property or refinance, you are paid back in full with interest.</p>
+              <p className="mb-2">Typically one investor per property — but occasionally we structure a first and second position based on the numbers and availability.</p>
+              <p className="mb-3">Terms including interest rate and loan structure are <strong>finalized together at an in-person or virtual meeting</strong> before any commitment is made.</p>
             </div>
 
             <p className="text-[#374151] text-[13.5px]">
@@ -674,7 +619,7 @@ export default function CapitalPartnerPage() {
             disabled={isSubmitting}
             className="py-[13px] px-9 rounded-lg border-none bg-[#ffc200] text-[#1e293b] text-sm font-bold cursor-pointer tracking-wide hover:bg-[#e6af00] disabled:opacity-50 disabled:cursor-not-allowed font-[family-name:var(--font-body)]"
           >
-            {isSubmitting ? 'Submitting\u2026' : step === 4 ? 'Submit Application \u2192' : 'Continue \u2192'}
+            {isSubmitting ? 'Submitting\u2026' : step === 3 ? 'Submit Application \u2192' : 'Continue \u2192'}
           </button>
         </div>
 
