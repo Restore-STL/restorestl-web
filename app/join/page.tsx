@@ -214,7 +214,7 @@ export default function InvestorIntakePage() {
         additional_notes: form.additionalNotes,
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/investors/submit`, {
+      const res = await fetch(`${API_BASE_URL}/api/buyers/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
         body: JSON.stringify(payload),
