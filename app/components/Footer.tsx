@@ -57,6 +57,28 @@ export default function Footer() {
           </a>
         </div>
 
+        {/* Sister sites */}
+        <div className="mb-4">
+          <p className="text-gray-500 text-xs">
+            Part of the Restore STL family:{' '}
+            <a
+              href="https://probatehelpstl.com"
+              rel="noopener"
+              className="text-gray-400 hover:text-[var(--brand-yellow)] transition-colors duration-200"
+            >
+              Probate Help STL
+            </a>
+            <span className="text-gray-600"> &middot; </span>
+            <a
+              href="https://stopforeclosurestl.com"
+              rel="noopener"
+              className="text-gray-400 hover:text-[var(--brand-yellow)] transition-colors duration-200"
+            >
+              Stop Foreclosure STL
+            </a>
+          </p>
+        </div>
+
         {/* Copyright */}
         <p className="text-gray-400 text-sm">
           Restore STL &copy; {new Date().getFullYear()}
