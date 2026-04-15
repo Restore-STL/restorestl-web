@@ -24,7 +24,7 @@ export default function BookPage() {
               15 minutes with Kevin. Real numbers. Real options. No pitch.
             </p>
             <p className="text-gray-400 text-lg">
-              Kevin has 25+ years in St. Louis real estate. He&apos;ll walk you through
+              Kevin has 20 years in St. Louis real estate. He&apos;ll walk you through
               exactly what your property is worth, what your options are, and what each
               path actually costs. You keep the report either way.
             </p>
