@@ -1,0 +1,1429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Restore STL — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --charcoal-deep: #0F172A;
+    --charcoal-mid: #1E293B;
+    --charcoal-line: #334155;
+    --yellow: #FFC200;
+    --yellow-hover: #E6AE00;
+    --green: #0A8754;
+    --ink: #0F172A;
+    --ink-2: #334155;
+    --ink-3: #64748B;
+    --surface: #FFFFFF;
+    --surface-alt: #F8FAFC;
+    --surface-border: #E2E8F0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--surface-alt);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); }
+  h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; letter-spacing: -0.01em; margin: 0; }
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    background: var(--black);
+    color: #fff;
+    padding: 28px 0;
+    border-bottom: 4px solid var(--yellow);
+  }
+  .topbar .wrap { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .topbar h1 {
+    font-weight: 800;
+    font-size: clamp(24px, 3vw, 34px);
+    color: #fff;
+  }
+  .topbar h1 .stl { color: var(--yellow); }
+  .topbar .meta {
+    font-size: 13px;
+    color: #94A3B8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ TOC ============ */
+  .toc {
+    background: #fff;
+    border-bottom: 1px solid var(--surface-border);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: saturate(1.2) blur(6px);
+  }
+  .toc .wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toc a {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--surface-border);
+    background: #fff;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .toc a:hover { border-color: var(--charcoal-deep); color: var(--ink); }
+
+  /* ============ SECTION ============ */
+  section.docs {
+    padding: 64px 0 16px;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 12px;
+  }
+  h2.section-title {
+    font-weight: 800;
+    font-size: clamp(28px, 3.4vw, 40px);
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  h2.section-title::after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 3px;
+    background: var(--yellow);
+    margin-top: 18px;
+  }
+  p.lead {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 68ch;
+    margin: 0 0 36px;
+  }
+  h3.sub {
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--ink);
+    margin: 48px 0 16px;
+  }
+  h3.sub .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    background: var(--surface-alt);
+    border: 1px solid var(--surface-border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    letter-spacing: 0;
+    vertical-align: 2px;
+  }
+
+  /* ============ TOKEN TABLES ============ */
+  .card {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  table.tokens {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.tokens th, table.tokens td {
+    text-align: left;
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--surface-border);
+    vertical-align: top;
+  }
+  table.tokens th {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--surface-border);
+  }
+  table.tokens tr:last-child td { border-bottom: 0; }
+  table.tokens .swatch {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid rgba(15,23,42,.08);
+    vertical-align: -8px;
+    margin-right: 10px;
+  }
+  table.tokens code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--charcoal-deep);
+    background: var(--surface-alt);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  table.tokens .usage { color: var(--ink-2); }
+  table.tokens .usage .no { color: #B91C1C; }
+
+  /* ============ TYPE SPECIMENS ============ */
+  .type-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px 28px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--surface-border);
+  }
+  .type-row:last-child { border-bottom: 0; }
+  @media (min-width: 720px) {
+    .type-row { grid-template-columns: 220px 1fr; align-items: center; }
+  }
+  .type-meta {
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.5;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .type-meta strong {
+    display: block;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 0;
+  }
+  .type-sample { color: var(--ink); text-wrap: balance; }
+
+  .sample-h1 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 48px; line-height: 1.08; letter-spacing: -0.015em; }
+  .sample-h2 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.01em; }
+  .sample-h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.28; }
+  .sample-lede { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 21px; line-height: 1.7; color: var(--ink); }
+  .sample-body { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 18px; line-height: 1.8; color: var(--ink-2); }
+  .sample-ui { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+  .sample-kicker { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+  .sample-meta { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 14px; color: var(--ink-3); }
+
+  /* ============ RADII / SHADOW SWATCHES ============ */
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .radius-chip, .shadow-chip, .spacing-chip {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .radius-chip .box {
+    background: var(--charcoal-deep);
+    height: 56px;
+    margin-bottom: 14px;
+  }
+  .shadow-chip .box {
+    background: #fff;
+    height: 56px;
+    margin-bottom: 14px;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+  }
+  .shadow-chip.s1 .box { box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.05); }
+  .shadow-chip.s2 .box { box-shadow: 0 8px 28px rgba(15,23,42,.08); }
+  .shadow-chip.s3 .box { box-shadow: 0 10px 36px rgba(15,23,42,.10); }
+  .chip-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .chip-val { font-size: 12px; color: var(--ink-3); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+
+  .spacing-chip .bar {
+    background: var(--yellow);
+    height: 8px;
+    margin: 8px auto 10px;
+    border-radius: 2px;
+  }
+
+  /* ============ COMPONENT CARDS ============ */
+  .comp {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .comp-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--surface-alt);
+  }
+  .comp-head h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink); }
+  .comp-head .handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .comp-desc { padding: 20px 24px 0; color: var(--ink-2); font-size: 14px; line-height: 1.65; }
+  .comp-desc p { margin: 0 0 10px; }
+  .comp-desc dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 14px;
+    font-size: 13px;
+    margin: 8px 0 0;
+  }
+  .comp-desc dt {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--charcoal-deep);
+    font-size: 12px;
+  }
+  .comp-desc dd { margin: 0; color: var(--ink-2); }
+  .comp-preview {
+    padding: 28px 24px;
+    background:
+      linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-color: #fff;
+  }
+  .comp-preview.dark {
+    background: var(--black);
+  }
+  .comp-preview.slate { background: var(--charcoal-deep); }
+  .comp-preview.light { background: var(--surface-alt); }
+
+  /* ============ PREVIEW: wordmark / nav ============ */
+  .pv-nav {
+    background: var(--black);
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 6px;
+    gap: 20px;
+  }
+  .pv-wordmark {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .pv-wordmark .stl { color: var(--yellow); }
+  .pv-nav-links {
+    display: none;
+    gap: 24px;
+    font-size: 13px;
+    color: #CBD5E1;
+    font-weight: 500;
+  }
+  .pv-nav-links a { color: #CBD5E1; text-decoration: none; }
+  .pv-nav-links a.active { color: var(--yellow); }
+  .pv-cta {
+    background: var(--yellow);
+    color: var(--charcoal-deep);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  @media (min-width: 640px) { .pv-nav-links { display: flex; } }
+
+  /* Pillar badges */
+  .pv-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pv-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 11px;
+    border-radius: 4px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .pv-badge.neigh { background: var(--yellow); color: var(--charcoal-deep); }
+  .pv-badge.sell  { background: var(--green);  color: #fff; }
+  .pv-badge.mkt   { background: var(--green);  color: #fff; }
+  .pv-badge.cult  { background: var(--charcoal-deep); color: #fff; }
+  .pv-badge.home  { background: #B45309; color: #fff; }
+  .pv-badge.bts   { background: #fff; color: var(--charcoal-deep); border: 1px solid var(--surface-border); }
+
+  /* Post card */
+  .pv-card {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 340px;
+  }
+  .pv-card .img {
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #475569, #1E293B);
+    position: relative;
+  }
+  .pv-card .img .badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--yellow); color: var(--charcoal-deep);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 5px 9px; border-radius: 4px; line-height: 1;
+  }
+  .pv-card .body { padding: 18px 18px 20px; }
+  .pv-card h4 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 17px; line-height: 1.28; color: var(--ink); margin: 0 0 8px; }
+  .pv-card .ex { color: var(--ink-2); font-size: 13px; line-height: 1.5; margin: 0 0 14px; }
+  .pv-card .mt { font-size: 12px; color: var(--ink-3); display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--surface-border); }
+
+  /* Post hero */
+  .pv-hero {
+    background: var(--black);
+    color: #fff;
+    border-radius: 8px;
+    padding: 40px 28px 32px;
+    position: relative;
+    overflow: hidden;
+    min-height: 240px;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.82) 75%, rgba(0,0,0,1) 100%), url('https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=70');
+    background-size: cover;
+    background-position: center;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .pv-hero .kick {
+    display: inline-block;
+    background: var(--green); color: #fff;
+    padding: 6px 10px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; line-height: 1; margin-bottom: 14px;
+    align-self: flex-start;
+  }
+  .pv-hero h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800; font-size: 26px; line-height: 1.1;
+    letter-spacing: -0.015em; color: #fff; margin: 0 0 10px;
+  }
+  .pv-hero .meta { font-size: 12px; color: #CBD5E1; display: flex; gap: 10px; }
+
+  /* Inline CTA */
+  .pv-icta {
+    background: var(--charcoal-deep);
+    color: #fff;
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex; gap: 20px; align-items: center;
+    position: relative; overflow: hidden;
+    flex-wrap: wrap;
+  }
+  .pv-icta::before {
+    content: ""; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%; background: var(--yellow);
+  }
+  .pv-icta .k { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--yellow); margin-bottom: 4px; }
+  .pv-icta h4 { font-family: 'Montserrat', sans-serif; color: #fff; font-size: 17px; font-weight: 700; margin: 0 0 4px; }
+  .pv-icta p { color: #CBD5E1; font-size: 13px; margin: 0; line-height: 1.55; }
+  .pv-icta .body { flex: 1; min-width: 200px; }
+  .pv-btn {
+    background: var(--yellow); color: var(--charcoal-deep);
+    padding: 11px 18px; border-radius: 8px;
+    font-weight: 700; font-size: 13px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+
+  /* Pullquote */
+  .pv-pq {
+    background: var(--surface-alt);
+    padding: 26px 24px 24px 48px;
+    border-left: 4px solid var(--yellow);
+    position: relative;
+    border-radius: 0 8px 8px 0;
+  }
+  .pv-pq::before {
+    content: "\201C";
+    position: absolute; left: 14px; top: 2px;
+    font-family: 'Montserrat', serif;
+    font-size: 52px;
+    color: var(--yellow); font-weight: 800; line-height: 1;
+  }
+  .pv-pq p {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500; font-size: 19px; line-height: 1.35;
+    color: var(--ink); margin: 0 0 12px; text-wrap: balance;
+  }
+  .pv-pq cite {
+    font-style: normal;
+    font-size: 12px; font-weight: 600; color: var(--ink-2);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .pv-pq cite .who { color: var(--ink); }
+
+  /* Checklist */
+  .pv-check { list-style: none; padding: 0; margin: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); background: #fff; }
+  .pv-check li { position: relative; padding: 14px 16px 14px 44px; border-top: 1px solid var(--surface-border); font-size: 14px; color: var(--ink); line-height: 1.45; }
+  .pv-check li:first-child { border-top: 0; }
+  .pv-check li::before {
+    content: ""; position: absolute; left: 12px; top: 17px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--green);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");
+    background-size: 12px; background-repeat: no-repeat; background-position: center;
+  }
+  .pv-check li strong { display: block; font-weight: 700; }
+  .pv-check li span { color: var(--ink-3); font-size: 12px; font-weight: 400; }
+
+  /* Tag row */
+  .pv-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pv-tag {
+    font-size: 12px; font-weight: 500; color: var(--ink-2);
+    background: #fff; border: 1px solid var(--surface-border);
+    padding: 5px 11px; border-radius: 999px; text-decoration: none;
+  }
+
+  /* Share row */
+  .pv-share {
+    display: flex; gap: 16px; align-items: center; justify-content: space-between;
+    padding: 14px 0; border-top: 1px solid var(--surface-border); border-bottom: 1px solid var(--surface-border);
+  }
+  .pv-share .lab { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+  .pv-share-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--surface-border); border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-2); background: #fff;
+  }
+  .pv-share-btn svg { width: 16px; height: 16px; }
+
+  /* Author card */
+  .pv-author { display: flex; gap: 14px; align-items: center; padding: 16px 0; }
+  .pv-avatar {
+    width: 48px; height: 48px; border-radius: 50%; background: var(--black);
+    display: grid; place-items: center;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+    letter-spacing: 0.04em; line-height: 1;
+  }
+  .pv-avatar .r { color: #fff; }
+  .pv-avatar .stl { color: var(--yellow); }
+  .pv-author .nm { font-weight: 700; font-size: 14px; color: var(--ink); margin: 0 0 2px; }
+  .pv-author .bio { font-size: 13px; color: var(--ink-3); margin: 0 0 3px; }
+  .pv-author .cr  { font-size: 11px; color: #94A3B8; margin: 0; }
+
+  /* Pillar nav */
+  .pv-pillars { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .pv-pillars .p {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--ink-2);
+    background: #fff; border: 1px solid var(--surface-border);
+    padding: 7px 12px; border-radius: 999px; text-decoration: none;
+    white-space: nowrap;
+  }
+  .pv-pillars .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* End CTA */
+  .pv-ecta {
+    background: var(--black); color: #fff; border-radius: 12px;
+    padding: 40px 28px; text-align: center; overflow: hidden; position: relative;
+  }
+  .pv-ecta::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,194,0,0.09), transparent 55%);
+  }
+  .pv-ecta-inner { position: relative; }
+  .pv-ecta h4 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.2; color: #fff; margin: 0 0 10px; letter-spacing: -0.015em; }
+  .pv-ecta h4 .acc { color: var(--yellow); }
+  .pv-ecta p { color: #CBD5E1; font-size: 13px; margin: 0 0 22px; max-width: 380px; margin-inline: auto; line-height: 1.55; }
+  .pv-ecta .acts { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; align-items: center; }
+  .pv-ecta .txt { color: #fff; font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--yellow); padding-bottom: 2px; text-decoration: none; }
+
+  /* Partner slot placeholder */
+  .pv-slot {
+    border: 2px dashed var(--charcoal-line);
+    background: repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(15,23,42,0.03) 8px, rgba(15,23,42,0.03) 16px);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    color: var(--ink-3);
+  }
+  .pv-slot .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--charcoal-deep); margin-bottom: 8px; }
+  .pv-slot .msg { font-size: 13px; color: var(--ink-2); max-width: 440px; margin: 0 auto 4px; line-height: 1.55; }
+  .pv-slot code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; background: var(--surface-alt);
+    padding: 2px 6px; border-radius: 4px; color: var(--charcoal-deep);
+    border: 1px solid var(--surface-border);
+  }
+
+  /* Related */
+  .pv-related { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .pv-related .c { border: 1px solid var(--surface-border); border-radius: 10px; background: #fff; overflow: hidden; }
+  .pv-related .c .im { aspect-ratio: 16/10; background: linear-gradient(135deg, #94A3B8, #475569); }
+  .pv-related .c .bd { padding: 14px; }
+  .pv-related .c .ti { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.28; margin: 0 0 6px; color: var(--ink); }
+  .pv-related .c .mt { font-size: 11px; color: var(--ink-3); }
+
+  /* Footer preview */
+  .pv-footer { background: var(--charcoal-deep); color: #94A3B8; border-radius: 8px; padding: 22px 24px; font-size: 13px; }
+  .pv-footer .wm { font-family: 'Montserrat', sans-serif; font-weight: 800; color: #fff; font-size: 16px; margin-bottom: 6px; letter-spacing: 0.04em; }
+  .pv-footer .wm .stl { color: var(--yellow); }
+  .pv-footer p { margin: 0 0 10px; color: #64748B; font-size: 12px; max-width: 280px; line-height: 1.5; }
+  .pv-footer-nl { background: var(--black); color: #fff; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 10px; }
+  .pv-footer-nl h4 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 18px; color: #fff; margin: 0 0 4px; }
+  .pv-footer-nl h4 .stl { color: var(--yellow); }
+  .pv-footer-nl p { color: #94A3B8; font-size: 12px; margin: 0 0 12px; }
+  .pv-footer-nl .form { display: flex; gap: 6px; max-width: 320px; margin: 0 auto; }
+  .pv-footer-nl input {
+    flex: 1; padding: 9px 12px; border-radius: 6px;
+    background: var(--charcoal-mid); border: 1px solid var(--charcoal-line);
+    color: #fff; font-size: 12px;
+  }
+  .pv-footer-nl .btn { background: var(--yellow); color: var(--charcoal-deep); padding: 9px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; border: 0; }
+
+  /* ============ EDITORIAL RULES ============ */
+  .rules {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 720px) { .rules { grid-template-columns: repeat(2, 1fr); } }
+  .rule {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--yellow);
+    padding: 18px 20px;
+    border-radius: 0 8px 8px 0;
+  }
+  .rule.forbid {
+    border-left-color: #B91C1C;
+  }
+  .rule h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rule .tok {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .rule.forbid .tok { background: #FEE2E2; color: #991B1B; }
+  .rule p { color: var(--ink-2); font-size: 13px; line-height: 1.55; margin: 0; }
+  .rule p .do  { color: var(--green); font-weight: 700; }
+  .rule p .dont { color: #B91C1C; font-weight: 700; text-decoration: line-through; }
+
+  /* ============ GAPS ============ */
+  .gaps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 720px) { .gaps { grid-template-columns: repeat(2, 1fr); } }
+  .gap {
+    background: #fff;
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .gap .ticket {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--charcoal-deep);
+    background: var(--surface-alt);
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-border);
+  }
+  .gap .ticket.blocked { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
+  .gap .ticket.queued  { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+  .gap .ticket.pending { background: #E0E7FF; color: #3730A3; border-color: #C7D2FE; }
+  .gap h4 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; color: var(--ink); margin: 0 0 4px; }
+  .gap p { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.55; }
+
+  /* ============ FOOTER ============ */
+  footer.doc-footer {
+    background: var(--black);
+    color: #64748B;
+    padding: 40px 0;
+    margin-top: 64px;
+    text-align: center;
+    font-size: 13px;
+    border-top: 3px solid var(--yellow);
+  }
+  footer.doc-footer .wm { color: #fff; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 0.04em; margin-bottom: 6px; }
+  footer.doc-footer .wm .stl { color: var(--yellow); }
+
+  *:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="wrap">
+    <h1>Restore <span class="stl">STL</span> — Design System</h1>
+    <span class="meta">v1.0 · April 2026 · working doc</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc" aria-label="Section navigation">
+  <div class="wrap">
+    <a href="#tokens">01 · Tokens</a>
+    <a href="#components">02 · Components</a>
+    <a href="#editorial">03 · Editorial</a>
+    <a href="#gaps">04 · Gaps</a>
+  </div>
+</nav>
+
+<!-- ============ SECTION 1: TOKENS ============ -->
+<section class="docs" id="tokens">
+  <div class="wrap">
+    <div class="section-label">Section 01</div>
+    <h2 class="section-title">Tokens</h2>
+    <p class="lead">The atomic values. Every color, type size, radius, and shadow used across the blog index and post template. Anchored on a two-tier dark system: <code>--black</code> for hero/nav authority, <code>--charcoal-deep</code> for secondary dark surfaces.</p>
+
+    <!-- Colors -->
+    <h3 class="sub">Color <span class="tag">--color-*</span></h3>
+    <div class="card">
+      <table class="tokens">
+        <thead><tr><th style="width: 34%;">Token</th><th style="width: 16%;">Hex</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="swatch" style="background: #000000"></span><strong>--black</strong></td>
+            <td><code>#000000</code></td>
+            <td class="usage"><strong>Primary dark.</strong> Site header, hero, top-of-page authority surfaces, End CTA band. <span class="no">Not for</span> footer, inline CTAs, or body text.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #0F172A"></span><strong>--charcoal-deep</strong></td>
+            <td><code>#0F172A</code></td>
+            <td class="usage"><strong>Secondary dark.</strong> Footer, inline article CTA blocks, Culture pillar badge. Also doubles as <code>--ink</code> for primary body headings.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #1E293B"></span><strong>--charcoal-mid</strong></td>
+            <td><code>#1E293B</code></td>
+            <td class="usage">Borders on dark surfaces, subtle divider between dark sections, newsletter input background.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #334155"></span><strong>--charcoal-line</strong></td>
+            <td><code>#334155</code></td>
+            <td class="usage">Borders on darker components (pill outlines on dark, input borders).</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #FFC200"></span><strong>--yellow</strong></td>
+            <td><code>#FFC200</code></td>
+            <td class="usage"><strong>Primary CTA / accent.</strong> Buttons, accent words in headlines, active nav states, left-border stripes on inline CTAs, underlines on editorial links. The only accent color that appears on every page.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #E6AE00"></span><strong>--yellow-hover</strong></td>
+            <td><code>#E6AE00</code></td>
+            <td class="usage">Hover state for primary yellow buttons only.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #0A8754"></span><strong>--green</strong></td>
+            <td><code>#0A8754</code></td>
+            <td class="usage">Secondary accent. Positive signals (checklist checkmarks), Seller Education + Market Data pillar badges, copied-confirmation state.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #B45309"></span><strong>pillar--homeowner</strong></td>
+            <td><code>#B45309</code></td>
+            <td class="usage">Homeowner Help pillar badge only. Not a general-purpose token.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #0F172A"></span><strong>--ink</strong></td>
+            <td><code>#0F172A</code></td>
+            <td class="usage">Primary body text and headings on light surfaces. Same value as <code>--charcoal-deep</code>, separate name by intent.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #334155"></span><strong>--ink-2</strong></td>
+            <td><code>#334155</code></td>
+            <td class="usage">Body copy paragraphs, card excerpts, supporting text.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #64748B"></span><strong>--ink-3</strong></td>
+            <td><code>#64748B</code></td>
+            <td class="usage">Meta (dates, read time), tertiary labels, placeholder text.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #FFFFFF"></span><strong>--surface</strong></td>
+            <td><code>#FFFFFF</code></td>
+            <td class="usage">Default page background, card surfaces.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #F8FAFC"></span><strong>--surface-alt</strong></td>
+            <td><code>#F8FAFC</code></td>
+            <td class="usage">Post grid section background, pull-quote background, tag/sort chip backgrounds, Related Posts band.</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background: #E2E8F0"></span><strong>--surface-border</strong></td>
+            <td><code>#E2E8F0</code></td>
+            <td class="usage">All light-surface borders (cards, inputs, dividers).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Typography -->
+    <h3 class="sub">Typography <span class="tag">Montserrat + Inter</span></h3>
+    <p class="lead" style="margin-bottom: 16px;">Two families: <strong>Montserrat</strong> (500–900) for all display type, <strong>Inter</strong> (400–700) for body, UI, and meta. Sizes are fluid (<code>clamp()</code>) between mobile and desktop.</p>
+    <div class="card" style="padding: 8px 24px;">
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>H1 · Hero</strong>
+          Montserrat 800<br/>
+          desktop 56px / 1.08<br/>
+          mobile 32px / 1.08<br/>
+          tracking −0.015em
+        </div>
+        <div class="type-sample sample-h1">Stories from the Gateway City.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>H2 · Section</strong>
+          Montserrat 700<br/>
+          desktop 34px / 1.2<br/>
+          mobile 24px / 1.2<br/>
+          tracking −0.015em
+        </div>
+        <div class="type-sample sample-h2">What happens when probate moves forward.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>H3 · Card Title</strong>
+          Montserrat 700<br/>
+          22px / 1.25<br/>
+          tracking −0.01em
+        </div>
+        <div class="type-sample sample-h3">The Tower Grove South question: stay, refinance, or sell.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>Lede</strong>
+          Inter 500<br/>
+          desktop 21px / 1.7<br/>
+          mobile 19px / 1.7<br/>
+          color: --ink
+        </div>
+        <div class="type-sample sample-lede">The phone call comes, and then a week later the mail starts arriving. A letter from the county, a statement from a mortgage servicer — the paperwork side of grief.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>Body</strong>
+          Inter 400<br/>
+          desktop 18px / 1.8<br/>
+          mobile 17px / 1.75<br/>
+          color: --ink-2
+        </div>
+        <div class="type-sample sample-body">Probate is just the legal process of transferring what someone owned into the names of the people they left it to. In Missouri, that usually runs through the circuit court in the county where the person lived.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>UI / Button</strong>
+          Inter 500–700<br/>
+          14–15px / 1.5<br/>
+          letter-spacing 0.01em
+        </div>
+        <div class="type-sample sample-ui">Get My Offer · Schedule a call · Read the full story</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>Kicker / Eyebrow</strong>
+          Inter 700<br/>
+          12px / 1.5<br/>
+          uppercase · tracking 0.14em
+        </div>
+        <div class="type-sample sample-kicker">THE RESTORE STL JOURNAL</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <strong>Meta</strong>
+          Inter 500<br/>
+          14px / 1.5<br/>
+          color: --ink-3
+        </div>
+        <div class="type-sample sample-meta">Apr 14, 2026 · 8 min read · By the Restore STL Team</div>
+      </div>
+    </div>
+
+    <!-- Spacing, Radius, Shadow -->
+    <h3 class="sub">Spacing</h3>
+    <p class="lead" style="margin-bottom: 16px;">A loose 4/8 rhythm, not a strict scale. Common values in use:</p>
+    <div class="grid2" style="margin-bottom: 24px;">
+      <div class="spacing-chip"><div class="bar" style="width: 8px;"></div><div class="chip-name">8px</div><div class="chip-val">component gaps, tight meta</div></div>
+      <div class="spacing-chip"><div class="bar" style="width: 16px;"></div><div class="chip-name">16px</div><div class="chip-val">card inner gaps</div></div>
+      <div class="spacing-chip"><div class="bar" style="width: 24px;"></div><div class="chip-name">24px</div><div class="chip-val">card padding, inline CTA padding</div></div>
+      <div class="spacing-chip"><div class="bar" style="width: 32px;"></div><div class="chip-name">32px</div><div class="chip-val">grid gutters</div></div>
+      <div class="spacing-chip"><div class="bar" style="width: 56px;"></div><div class="chip-name">56px</div><div class="chip-val">H2 top margin in article body</div></div>
+      <div class="spacing-chip"><div class="bar" style="width: 72px;"></div><div class="chip-name">72px</div><div class="chip-val">section vertical padding (desktop)</div></div>
+    </div>
+
+    <h3 class="sub">Radius</h3>
+    <div class="grid2" style="margin-bottom: 24px;">
+      <div class="radius-chip"><div class="box" style="border-radius: 4px;"></div><div class="chip-name">4px</div><div class="chip-val">badges, tags</div></div>
+      <div class="radius-chip"><div class="box" style="border-radius: 8px;"></div><div class="chip-name">8px</div><div class="chip-val">buttons, inputs, page pills</div></div>
+      <div class="radius-chip"><div class="box" style="border-radius: 10px;"></div><div class="chip-name">10px · --radius</div><div class="chip-val">standard containers</div></div>
+      <div class="radius-chip"><div class="box" style="border-radius: 14px;"></div><div class="chip-name">14px · --radius-lg</div><div class="chip-val">cards, inline CTA, featured</div></div>
+      <div class="radius-chip"><div class="box" style="border-radius: 999px;"></div><div class="chip-name">999px</div><div class="chip-val">nav CTA, filter pills, tags</div></div>
+    </div>
+
+    <h3 class="sub">Shadow / Elevation</h3>
+    <div class="grid2">
+      <div class="shadow-chip s1"><div class="box"></div><div class="chip-name">Rest</div><div class="chip-val">cards at rest (subtle)</div></div>
+      <div class="shadow-chip s2"><div class="box"></div><div class="chip-name">Hover</div><div class="chip-val">card hover lift</div></div>
+      <div class="shadow-chip s3"><div class="box"></div><div class="chip-name">Featured</div><div class="chip-val">featured card hover</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 2: COMPONENTS ============ -->
+<section class="docs" id="components">
+  <div class="wrap">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">Components</h2>
+    <p class="lead">Every reusable block established across the Blog Index and Blog Post Template. Each card shows purpose, props/variants, and where it's currently used. Future artifacts (neighborhood hubs, pillar variants) should compose from these — don't reinvent.</p>
+
+    <!-- SiteHeader -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>SiteHeader</h3>
+        <span class="handle">&lt;header class="nav"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Sticky top bar on black. Wordmark (RESTORE STL — two words, yellow "STL"), nav links (Sell · Process · About · Blog), phone number (desktop only), yellow pill CTA "Get My Offer". Burger on mobile &lt;900px.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Index, Blog Post Template, all future marketing pages</dd>
+          <dt>Active link</dt><dd>current-section link colored <code>--yellow</code></dd>
+          <dt>Height</dt><dd>72px fixed</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-nav">
+          <span class="pv-wordmark">RESTORE <span class="stl">STL</span></span>
+          <div class="pv-nav-links">
+            <a href="#">Sell</a>
+            <a href="#">Process</a>
+            <a href="#">About</a>
+            <a href="#" class="active">Blog</a>
+          </div>
+          <a href="#" class="pv-cta">Get My Offer</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PillarBadge -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PillarBadge</h3>
+        <span class="handle">&lt;span class="pillar-badge {variant}"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Six variants, one per editorial pillar. Used on post hero (large) and card thumbnails (small). Uppercase, 0.12em tracking, 4px radius. Each pillar has a fixed color to build recognition.</p>
+        <dl>
+          <dt>Variants</dt><dd><code>.neighborhood</code> (yellow/dark) · <code>.seller</code> / <code>.market</code> (green/white) · <code>.culture</code> (slate/white) · <code>.homeowner</code> (#B45309/white) · <code>.behind</code> (white/dark)</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-badges">
+          <span class="pv-badge neigh">Neighborhood Stories</span>
+          <span class="pv-badge sell">Seller Education</span>
+          <span class="pv-badge mkt">Market Data</span>
+          <span class="pv-badge cult">Culture &amp; Local Life</span>
+          <span class="pv-badge home">Homeowner Help</span>
+          <span class="pv-badge bts">Behind the Scenes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PostCard -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PostCard</h3>
+        <span class="handle">&lt;article class="card"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Standard post tile. 16:10 image, pillar badge top-left, Montserrat 700 title, 2-line clamped excerpt, meta row (date · read time) divided from body by a top border.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Index grid (2-up desktop, 1-up mobile), Related Posts (3-up), future pillar index pages</dd>
+          <dt>Hover</dt><dd>translate(-3px), shadow lift, image scale(1.03)</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-card">
+          <div class="img"><span class="badge">Seller Education</span></div>
+          <div class="body">
+            <h4>What happens when you inherit a house in Missouri?</h4>
+            <p class="ex">A plain-English walkthrough of probate, deeds, and the choices you actually have.</p>
+            <div class="mt"><span>Apr 14, 2026</span><span>·</span><span>8 min read</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FeaturedPostCard -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>FeaturedPostCard</h3>
+        <span class="handle">&lt;article class="featured"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Two-column-wide lead story. Image left, content right at ≥900px; stacked on mobile. "FEATURED STORY" flag with yellow-dot marker, pillar kicker, Montserrat 800 title (34px), longer excerpt, extended meta, yellow-underline "Read the full story" link.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Index (above the 6-card grid). One per index page.</dd>
+          <dt>Flag</dt><dd>Always "FEATURED STORY", never swapped for pillar label</dd>
+        </dl>
+      </div>
+      <div class="comp-preview light" style="padding: 0;">
+        <!-- simplified featured preview -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; background: #fff; border: 1px solid var(--surface-border); border-radius: 12px; overflow: hidden;">
+          <div style="aspect-ratio: 4/3; background: linear-gradient(135deg, #475569, #1E293B); position: relative; min-height: 180px;">
+            <span style="position: absolute; top: 14px; left: 14px; background: #000; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; line-height: 1;"><span style="width: 6px; height: 6px; background: var(--yellow); border-radius: 50%;"></span>Featured Story</span>
+          </div>
+          <div style="padding: 24px 22px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 10px;">Neighborhood Stories</div>
+            <h4 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; line-height: 1.15; margin: 0 0 10px; color: var(--ink); text-wrap: balance;">The Tower Grove South question: stay, refinance, or sell?</h4>
+            <p style="font-size: 13px; color: var(--ink-2); margin: 0 0 14px; line-height: 1.55;">Four owners on the same block, four different answers. Here's what the comps actually say.</p>
+            <a href="#" style="align-self: flex-start; font-size: 13px; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--yellow); text-decoration: none; padding-bottom: 2px;">Read the full story →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PostHero -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PostHero</h3>
+        <span class="handle">&lt;section class="post-hero"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Full-width hero with background image and a continuous gradient overlay. Top 40% of the frame sits under a light charcoal tint (<code>rgba(0,0,0,0.4)</code>) so the image reads; bottom 60% deepens through 0.82 opacity to solid <code>#000000</code> at the bottom edge. Text content (pillar badge, H1, meta row) anchors to the bottom where black is richest.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Post Template, all future article pages</dd>
+          <dt>Min height</dt><dd>460px mobile, 540px desktop</dd>
+          <dt>Image source</dt><dd>Per-post. Falls back to solid black with no image.</dd>
+        </dl>
+      </div>
+      <div class="comp-preview dark" style="padding: 20px;">
+        <div class="pv-hero">
+          <span class="kick">Seller Education</span>
+          <h4>What happens when you inherit a house in Missouri?</h4>
+          <div class="meta"><span>Apr 18, 2026</span><span>·</span><span>8 min read</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PostMeta -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PostMeta</h3>
+        <span class="handle">&lt;div class="post-meta"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Horizontal row: date · read time · author, separated by 3px dot dividers. Uses calendar and clock icons (14px, 0.85 opacity). Byline is always "By the Restore STL Team" — see Editorial § 3.</p>
+        <dl>
+          <dt>Used on</dt><dd>Post hero (white-on-dark), card footer (gray-on-light)</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div style="color: var(--ink-3); font-size: 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <span>📅 Apr 18, 2026</span><span style="width: 3px; height: 3px; background: #CBD5E1; border-radius: 50%;"></span>
+          <span>🕐 8 min read</span><span style="width: 3px; height: 3px; background: #CBD5E1; border-radius: 50%;"></span>
+          <span style="color: var(--ink);">By the Restore STL Team</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- InlineCTA -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>InlineCTA</h3>
+        <span class="handle">&lt;aside class="inline-cta"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Mid-article callout in <code>--charcoal-deep</code>. 4px yellow left-edge stripe, yellow uppercase kicker, Montserrat 700 headline, body paragraph, yellow button. Side-by-side ≥680px, stacked mobile. Used once per article, roughly after section 2.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Post Template (one per article, max)</dd>
+          <dt>Variants</dt><dd>None yet — same CTA everywhere. Pillar variants may swap copy but not styling.</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-icta">
+          <div class="body">
+            <div class="k">Talk it through</div>
+            <h4>Not sure which option fits your situation?</h4>
+            <p>Kevin walks through it with families every week — no pitch, no obligation.</p>
+          </div>
+          <a href="#" class="pv-btn">Schedule a call →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PullQuote -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PullQuote</h3>
+        <span class="handle">&lt;blockquote class="pullquote"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Typographic break on <code>--surface-alt</code> with 4px yellow left border and an oversized yellow "smart-open-quote" glyph. Quote is Montserrat 500 at 26px with balanced wrap. Attribution cite is small uppercase Inter.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Post Template (one per article)</dd>
+        </dl>
+      </div>
+      <div class="comp-preview light">
+        <div class="pv-pq">
+          <p>Most families don't need to sell the house in week one. They need to know what the house is actually worth, and what their options really are.</p>
+          <cite><span class="who">Kevin Dairaghi</span> · Restore STL</cite>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>Checklist</h3>
+        <span class="handle">&lt;ul class="checklist"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Ordered-action list pattern. Green-filled circle check (22px) + bold title + muted description on each row. Rows divided by <code>--surface-border</code>. Use for "what to do this week" style guidance.</p>
+      </div>
+      <div class="comp-preview light">
+        <ul class="pv-check">
+          <li><strong>Keep the house insured</strong><span>Call the carrier; most will extend a vacant-property rider.</span></li>
+          <li><strong>Find the deed and the mortgage statement</strong><span>You'll need both for every next step.</span></li>
+          <li><strong>Identify the executor, in writing</strong><span>Even before probate opens.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TagRow -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>TagRow</h3>
+        <span class="handle">&lt;div class="tags"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Hashtag-style pills on <code>--surface-alt</code>. Horizontal row, wraps. Links to filtered blog views by tag. 13px Inter 500, 999px radius.</p>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-tags">
+          <a href="#" class="pv-tag">#probate</a>
+          <a href="#" class="pv-tag">#inheritance</a>
+          <a href="#" class="pv-tag">#missouri</a>
+          <a href="#" class="pv-tag">#seller-education</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ShareRow -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>ShareRow</h3>
+        <span class="handle">&lt;div class="share-row"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Bordered top-and-bottom, "SHARE" label left, three square 40px icon buttons right: Facebook, LinkedIn, Copy Link. Copy animates to green checkmark on success for 1.6s.</p>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-share">
+          <span class="lab">Share</span>
+          <div style="display: flex; gap: 6px;">
+            <span class="pv-share-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-8h3l1-4h-4V7.5c0-1.1.4-2 2-2h2V2h-3c-2.9 0-5 1.8-5 5v3H6v4h3v8h4z"/></svg></span>
+            <span class="pv-share-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21H18.6v-5.5c0-1.3 0-3-1.83-3s-2.1 1.43-2.1 2.9V21H10V9z"/></svg></span>
+            <span class="pv-share-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AuthorCard -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>AuthorCard</h3>
+        <span class="handle">&lt;div class="author-card"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Black circle avatar with miniaturized "RSTL" wordmark (R white, STL yellow, Montserrat 700). Primary line "By the Restore STL Team", tagline "We buy houses to restore neighborhoods.", credit line 12px muted for contributors.</p>
+        <dl>
+          <dt>Byline</dt><dd>Always team byline — never a person's name. See Editorial § 3.</dd>
+          <dt>Credit line</dt><dd>Format: "Research and editing: {name}"</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <div class="pv-author">
+          <div class="pv-avatar"><span><span class="r">R</span><span class="stl">STL</span></span></div>
+          <div>
+            <p class="nm">By the Restore STL Team</p>
+            <p class="bio">We buy houses to restore neighborhoods.</p>
+            <p class="cr">Research and editing: Chris O'Keefe</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PillarNav -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PillarNav</h3>
+        <span class="handle">&lt;section class="topic-explorer"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Compact cross-pillar navigation. Centered "EXPLORE OTHER TOPICS" label over a wrapping row of 6 pills, each prefixed with an 8px colored dot matching its pillar's badge color. Links to <code>/blog?pillar={slug}</code>.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Post Template, below Related Posts</dd>
+          <dt>Tone</dt><dd>Quiet navigation, not a CTA</dd>
+        </dl>
+      </div>
+      <div class="comp-preview">
+        <p style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; text-align: center;">Explore other topics</p>
+        <div class="pv-pillars">
+          <a href="#" class="p"><span class="dot" style="background: var(--yellow);"></span>Neighborhood Stories</a>
+          <a href="#" class="p"><span class="dot" style="background: var(--green);"></span>Seller Education</a>
+          <a href="#" class="p"><span class="dot" style="background: var(--green);"></span>Market Data</a>
+          <a href="#" class="p"><span class="dot" style="background: var(--charcoal-deep);"></span>Culture &amp; Local Life</a>
+          <a href="#" class="p"><span class="dot" style="background: #B45309;"></span>Homeowner Help</a>
+          <a href="#" class="p"><span class="dot" style="background: #64748B;"></span>Behind the Scenes</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RelatedPosts -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>RelatedPosts</h3>
+        <span class="handle">&lt;section class="related"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Full-width band on <code>--surface-alt</code>. Left-aligned "More from {pillar}" heading, right-aligned "See all →" kicker. 3-column card grid (collapses to 1 on mobile). Cards surface same-pillar posts by default.</p>
+      </div>
+      <div class="comp-preview light">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+          <h4 style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 18px; margin: 0; color: var(--ink);">More from Seller Education</h4>
+          <span style="font-size: 12px; color: var(--ink-3);">See all →</span>
+        </div>
+        <div class="pv-related">
+          <div class="c"><div class="im"></div><div class="bd"><h5 class="ti">Probate timelines in Missouri</h5><p class="mt">Apr 9 · 7 min</p></div></div>
+          <div class="c"><div class="im"></div><div class="bd"><h5 class="ti">Stepped-up basis explained</h5><p class="mt">Mar 30 · 6 min</p></div></div>
+          <div class="c"><div class="im"></div><div class="bd"><h5 class="ti">Selling to a sibling</h5><p class="mt">Mar 21 · 5 min</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EndCTA -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>EndCTA</h3>
+        <span class="handle">&lt;section class="end-cta"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Full-width dark band in <code>--black</code> with a soft yellow radial glow at the top edge. Centered Montserrat 800 H2 with an accent phrase in yellow, supporting paragraph, two actions side-by-side: primary yellow button + secondary yellow-underlined text link.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Post Template (final section before footer)</dd>
+          <dt>Actions</dt><dd>Primary = "Schedule a call with Kevin" · Secondary = pillar-specific destination</dd>
+        </dl>
+      </div>
+      <div class="comp-preview dark" style="padding: 16px;">
+        <div class="pv-ecta">
+          <div class="pv-ecta-inner">
+            <h4>Inherited a property? <span class="acc">Let's talk through it.</span></h4>
+            <p>Fifteen minutes on the phone with Kevin. Straight answers, no pitch.</p>
+            <div class="acts">
+              <a href="#" class="pv-btn">Schedule a call →</a>
+              <a href="#" class="txt">See what your house is worth →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PartnerSlot -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>PartnerSlot <span class="handle" style="font-size: 11px; background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; margin-left: 10px;">RESERVED — TICKET-115</span></h3>
+        <span class="handle">&lt;aside class="partner-slot"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Defined as a slot in the Blog Post Template layout between the AuthorCard and Related Posts sections. <strong>Not rendered in base template.</strong> Pillar variants will populate with a contextually-relevant professional (attorney on probate posts, contractor on homeowner-help posts, etc.).</p>
+        <dl>
+          <dt>Schema</dt><dd><code>{ headshot, name, specialty, context, href }</code></dd>
+          <dt>context</dt><dd>One-line string, e.g. "Restore STL works with Katie on probate cases in St. Louis City."</dd>
+          <dt>href</dt><dd>Links to partner landing page on sister site</dd>
+          <dt>Constraints</dt><dd>One partner per article max. No rotation widget, no iframe, no third-party embed.</dd>
+        </dl>
+      </div>
+      <div class="comp-preview light">
+        <div class="pv-slot">
+          <div class="lbl">Slot · Reserved</div>
+          <p class="msg">Future pillar variants will render a contextual partner here. Base template leaves the slot empty and defined as a commented-out markup block.</p>
+          <code>&lt;aside class="partner-slot"&gt;</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- SiteFooter -->
+    <div class="comp">
+      <div class="comp-head">
+        <h3>SiteFooter</h3>
+        <span class="handle">&lt;footer class="footer"&gt; + &lt;section class="newsletter"&gt;</span>
+      </div>
+      <div class="comp-desc">
+        <p>Two-part footer region. First: newsletter strip on <code>--black</code> with "Get the monthly <em>STL</em> read." headline (STL in yellow), email input + yellow Subscribe button, unsubscribe microcopy. Second: footer on <code>--charcoal-deep</code> with wordmark + blurb column plus three link columns (Company · Resources · Contact). Copyright row on the very bottom.</p>
+        <dl>
+          <dt>Used on</dt><dd>Blog Index, Blog Post Template, everywhere</dd>
+          <dt>Newsletter</dt><dd>Only STL accent treatment in the system besides the header wordmark</dd>
+        </dl>
+      </div>
+      <div class="comp-preview dark" style="padding: 14px;">
+        <div class="pv-footer-nl">
+          <h4>Get the monthly <span class="stl">STL</span> read.</h4>
+          <p>One email, first of the month. No pitches.</p>
+          <form class="form" onsubmit="return false;">
+            <input type="email" placeholder="you@email.com" />
+            <button class="btn" type="submit">Subscribe</button>
+          </form>
+        </div>
+        <div class="pv-footer">
+          <div class="wm">RESTORE <span class="stl">STL</span></div>
+          <p>We buy houses directly from St. Louis families. Honest offers, real timelines.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SECTION 3: EDITORIAL ============ -->
+<section class="docs" id="editorial">
+  <div class="wrap">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">Editorial rules</h2>
+    <p class="lead">Voice and naming constraints baked into the system. If you're writing or reviewing post copy, these override anything else.</p>
+
+    <div class="rules">
+      <div class="rule">
+        <h4>Brand name <span class="tok">required</span></h4>
+        <p><span class="do">Restore STL</span> — two words, space between. Never <span class="dont">RestoreSTL</span> or <span class="dont">RESTORESTL</span> in customer-facing copy. The only exception is the wordmark treatment, which visually joins them via the yellow "STL" color shift.</p>
+      </div>
+      <div class="rule">
+        <h4>Byline <span class="tok">required</span></h4>
+        <p>Every post is bylined <span class="do">By the Restore STL Team</span>. Contributors go on a smaller credit line beneath ("Research and editing: {name}"). Never byline Kevin directly on blog posts.</p>
+      </div>
+      <div class="rule">
+        <h4>Kevin's experience <span class="tok">required</span></h4>
+        <p>When referencing Kevin's background, say <span class="do">20 years in St. Louis real estate</span>. Do not inflate to <span class="dont">25+ years</span>. Accuracy compounds.</p>
+      </div>
+      <div class="rule">
+        <h4>Tone <span class="tok">required</span></h4>
+        <p>Open-book, plainspoken. Write like you're explaining something to a family member across the kitchen table. Specifics over superlatives. Numbers over adjectives. Admit what's hard.</p>
+      </div>
+      <div class="rule forbid">
+        <h4>No AI language <span class="tok">forbidden</span></h4>
+        <p>Never use <span class="dont">AI-powered</span>, <span class="dont">smart algorithm</span>, or similar tech-marketing phrasing. The brand is built on human judgment and local knowledge — don't undercut that.</p>
+      </div>
+      <div class="rule forbid">
+        <h4>No Keystone Collective <span class="tok">forbidden</span></h4>
+        <p>Do not reference <span class="dont">Keystone Collective</span> anywhere in customer-facing copy. Cross-site links to sister brands (PHSTL, SFSTL) use their own names directly — see gap TICKET-114.</p>
+      </div>
+      <div class="rule">
+        <h4>Wordmark <span class="tok">brand</span></h4>
+        <p>In running text, write "Restore STL". In the wordmark/logo treatment, it becomes <code>RESTORE <span style="color: var(--yellow); font-weight: 700;">STL</span></code> — Montserrat 800, 0.04em tracking, yellow on the STL. This is the only place the name typesets as one visual unit.</p>
+      </div>
+      <div class="rule">
+        <h4>Accent word treatment <span class="tok">brand</span></h4>
+        <p>Headlines can use one yellow accent word (e.g. "Stories from the <span style="color: var(--yellow); font-weight: 700;">Gateway City</span>"). One per headline max. Never on body copy, never on meta text.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 4: GAPS ============ -->
+<section class="docs" id="gaps">
+  <div class="wrap">
+    <div class="section-label">Section 04</div>
+    <h2 class="section-title">Known gaps &amp; future work</h2>
+    <p class="lead">What this design system does <em>not</em> yet define. When a future session needs one of these, it extends the system — it doesn't overwrite it.</p>
+
+    <div class="gaps">
+      <div class="gap">
+        <span class="ticket queued">TICKET-112 · queued</span>
+        <h4>Neighborhood hub page template</h4>
+        <p>A landing template for individual neighborhoods (Lafayette Square, Tower Grove South, The Hill, Soulard, etc.). Will include a local hero, recent comps band, related posts filtered by neighborhood tag, and a neighborhood-specific CTA. Separate session.</p>
+      </div>
+      <div class="gap">
+        <span class="ticket queued">TICKET-113 · queued</span>
+        <h4>Pillar-specific post variants</h4>
+        <p>Four variants of the Blog Post Template, one per editorial pillar where structure differs meaningfully: Seller Education (FAQ module), Market Data (data viz + table patterns), Culture &amp; Local Life (photo-led hero), Homeowner Help (step-by-step layout). Each inherits 100% from base; adds section components only.</p>
+      </div>
+      <div class="gap">
+        <span class="ticket blocked">TICKET-115 · blocked</span>
+        <h4>PartnerSlot component</h4>
+        <p>Contextual partner feature block. Slot defined in base template; component styling + content model pending. See Components § PartnerSlot. Blocked on partner agreements finalizing.</p>
+      </div>
+      <div class="gap">
+        <span class="ticket blocked">TICKET-114 · blocked</span>
+        <h4>Cross-site link patterns (PHSTL, SFSTL)</h4>
+        <p>Visual treatment for links from Restore STL content to sister-site properties. Needs to signal "this is a related brand, not a third-party". Blocked on sister-brand visual audit.</p>
+      </div>
+      <div class="gap">
+        <span class="ticket pending">ASSET-01 · pending</span>
+        <h4>Real photography guidelines</h4>
+        <p>Tone, framing, and color-grading rules for original Restore STL photography (Kevin, neighborhoods, houses, closings). Pending delivery of the first shoot asset library. Until then, Unsplash placeholders acceptable in mockups only.</p>
+      </div>
+      <div class="gap">
+        <span class="ticket pending">TICKET-118 · pending</span>
+        <h4>Comments / social proof pattern</h4>
+        <p>Not scoped in v1. If we add reader responses, testimonials, or Google review surfacing, it lands here. For now, posts end at the End CTA — no comment thread.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="doc-footer">
+  <div class="wrap">
+    <div class="wm">RESTORE <span class="stl">STL</span></div>
+    <div>Design System v1.0 · April 2026 · Working doc — not public.</div>
+  </div>
+</footer>
+
+</body>
+</html>
