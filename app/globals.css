@@ -7,15 +7,36 @@
   --brand-green: #0a8754;
   --brand-green-dark: #065f46;
   --brand-green-success: #10b981;
-  
+
   /* Neutrals */
   --charcoal-deep: #0f172a;
   --charcoal-light: #1e293b;
+  --charcoal-mid: #1e293b;
+  --charcoal-line: #334155;
+  --ink: #0f172a;
+  --ink-2: #334155;
+  --ink-3: #64748b;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --background-gray: #f8fafc;
   --border-gray: #e2e8f0;
-  
+  --surface-alt: #f8fafc;
+  --surface-border: #e2e8f0;
+
+  /* Warm surface tokens (shared with neighborhood hub pages) */
+  --surface-warm: #faf7f2;
+  --surface-warm-deep: #f0e9dd;
+  --warm-border: #e8e0d1;
+
+  /* Editorial pillar colors — pillars only.
+     --brand-green is reserved for CTAs/confirmations/status; never a pillar. */
+  --pillar-neighborhood: #ffc200;
+  --pillar-seller: #1e3a8a;
+  --pillar-market: #0d9488;
+  --pillar-culture: #0f172a;
+  --pillar-homeowner: #b45309;
+  --pillar-behind: #e8e0d1;
+
   /* Base colors for light mode */
   --background: #ffffff;
   --foreground: #1e293b;
@@ -38,6 +59,65 @@
   /* Typography - we'll add Google Fonts next */
   --font-heading: 'Montserrat', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Article prose — scoped to .prose-article inside blog post bodies */
+.prose-article {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--ink-2);
+  font-size: clamp(17px, 1.05vw + 0.9rem, 18px);
+  line-height: 1.8;
+}
+.prose-article > * + * {
+  margin-top: 1.25em;
+}
+.prose-article h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: clamp(24px, 1.6vw + 0.8rem, 34px);
+  letter-spacing: -0.01em;
+  margin-top: 2em;
+  line-height: 1.25;
+}
+.prose-article h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 22px;
+  margin-top: 1.75em;
+  line-height: 1.3;
+}
+.prose-article a {
+  color: var(--ink);
+  border-bottom: 2px solid var(--brand-yellow);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+.prose-article a:hover {
+  background: rgba(255, 194, 0, 0.18);
+}
+.prose-article ul,
+.prose-article ol {
+  padding-left: 1.5em;
+}
+.prose-article li + li {
+  margin-top: 0.4em;
+}
+.prose-article blockquote:not(.pullquote) {
+  border-left: 4px solid var(--surface-border);
+  padding-left: 1em;
+  color: var(--ink-3);
+  font-style: italic;
+}
+.prose-article code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--surface-alt);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
 }
 
 body {
