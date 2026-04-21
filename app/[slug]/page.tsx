@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
   getNeighborhoodDetail,
@@ -21,11 +22,15 @@ import type {
   Citation,
   KnowledgeChunk,
   KnowledgeSource,
+  NeighborhoodProfile,
 } from '@/app/lib/neighborhood-types';
 import { sourceKey } from '@/app/lib/neighborhood-types';
 import { getNeighborhoodContent } from '@/app/data/lafayette-square';
 
 export const revalidate = 3600;
+
+const SITE_URL = 'https://restorestl.com';
+const FALLBACK_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 // Runtime short-circuit: if someone hits a reserved top-level slug directly,
 // skip the API fetch and 404 fast. Static file-system routes (/blog, /book,
@@ -36,6 +41,72 @@ const RESERVED_SLUGS = new Set([
   'about', 'blog', 'book', 'capital', 'join', 'privacy', 'sell',
   'api', '_next', 'favicon.ico', 'robots.txt', 'sitemap.xml',
 ]);
+
+// Strip HTML tags + collapse whitespace from a chunk body so it's safe to use
+// in meta description / JSON-LD strings. Chunk bodies are authored prose and
+// may contain footnote anchors, em-dashes, and the occasional inline tag.
+function cleanChunkText(body: string): string {
+  return body.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function truncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const slice = text.slice(0, max);
+  const lastSpace = slice.lastIndexOf(' ');
+  return (lastSpace > max * 0.6 ? slice.slice(0, lastSpace) : slice).trimEnd() + '…';
+}
+
+function buildDescription(
+  neighborhood: NeighborhoodProfile,
+  storyChunks: KnowledgeChunk[],
+  maxLen: number,
+): string {
+  const first = storyChunks[0];
+  if (first?.body) return truncate(cleanChunkText(first.body), maxLen);
+  const zip = neighborhood.zips[0] ?? '';
+  const zipClause = zip ? ` in ${zip}` : '';
+  return truncate(
+    `Neighborhood guide for ${neighborhood.display_name} in St. Louis. History, architecture, and community${zipClause}.`,
+    maxLen,
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (RESERVED_SLUGS.has(slug)) return {};
+  const detail = await getNeighborhoodDetail(slug);
+  if (!detail) return {};
+  const { neighborhood, chunks_by_topic } = detail;
+  const storyChunks: KnowledgeChunk[] = chunks_by_topic['re-history'] ?? [];
+  const url = `${SITE_URL}/${slug}`;
+  const title = `${neighborhood.display_name} | St. Louis Neighborhood Guide | Restore STL`;
+  const description = buildDescription(neighborhood, storyChunks, 155);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url,
+      siteName: 'Restore STL',
+      images: [{ url: FALLBACK_OG_IMAGE, width: 1200, height: 630 }],
+      authors: ['Restore STL'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [FALLBACK_OG_IMAGE],
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const slugs = await listNeighborhoodSlugs();
@@ -96,8 +167,36 @@ export default async function NeighborhoodHubPage({
   const statsStripItems = content?.statsStrip ?? [];
   const placeholders = content?.placeholders ?? [];
 
+  const pageUrl = `${SITE_URL}/${slug}`;
+  const jsonLdDescription = buildDescription(neighborhood, storyChunks, 300);
+  const placeSchema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: neighborhood.display_name,
+    description: jsonLdDescription,
+    url: pageUrl,
+    containedInPlace: {
+      '@type': 'AdministrativeArea',
+      name: 'St. Louis, MO',
+    },
+  };
+  const postalCode = neighborhood.zips[0];
+  if (postalCode) {
+    placeSchema.address = {
+      '@type': 'PostalAddress',
+      postalCode,
+      addressLocality: 'St. Louis',
+      addressRegion: 'MO',
+      addressCountry: 'US',
+    };
+  }
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
+      />
       <Hero
         displayName={neighborhood.display_name}
         tagline={tagline}
