@@ -71,8 +71,44 @@ export default async function BlogPostPage({
   const related = fm.related_neighborhoods ?? [];
   const { valid: validRelated } = await validateNeighborhoodSlugs(related);
 
+  const url = `https://restorestl.com/blog/${slug}`;
+  const imageUrl = fm.hero_image.startsWith('http')
+    ? fm.hero_image
+    : `https://restorestl.com${fm.hero_image}`;
+  const articleBodyPreview = post.body
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 300);
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    headline: fm.title,
+    description: fm.description,
+    image: [imageUrl],
+    datePublished: fm.published_at,
+    dateModified: fm.updated_at ?? fm.published_at,
+    author: { '@type': 'Organization', name: fm.author, url: 'https://restorestl.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Restore STL',
+      url: 'https://restorestl.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://restorestl.com/apple-touch-icon.png',
+      },
+    },
+    articleBody: articleBodyPreview,
+    keywords: fm.tags.join(', '),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navigation />
       <main style={{ background: '#fff', color: 'var(--ink)' }}>
         <section
