@@ -59,7 +59,7 @@ export default function Footer() {
 
         {/* Sister sites */}
         <div className="mb-4">
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-400 text-xs">
             Part of the Restore STL family:{' '}
             <a
               href="https://probatehelpstl.com"
