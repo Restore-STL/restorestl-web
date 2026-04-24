@@ -170,6 +170,74 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* ── Section 4.5: Sister sites paragraph ─────────────────── */}
+        <section className="bg-white py-12 md:py-16">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-lg md:text-xl text-[var(--text-primary)] leading-relaxed mb-8">
+              We ended up building two companion resources because a cash offer isn&apos;t always the right first conversation.{' '}
+              <a
+                href="https://stopforeclosurestl.com"
+                rel="noopener"
+                className="underline decoration-[var(--brand-yellow)] decoration-2 underline-offset-4 hover:text-[var(--brand-yellow)] transition-colors"
+              >
+                Stop Foreclosure STL
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://probatehelpstl.com"
+                rel="noopener"
+                className="underline decoration-[var(--brand-yellow)] decoration-2 underline-offset-4 hover:text-[var(--brand-yellow)] transition-colors"
+              >
+                Probate Help STL
+              </a>{' '}
+              cover the situations that come up most &mdash; free, plainspoken, and built for Missouri specifically.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-base font-semibold pt-2">
+              <a
+                href="https://stopforeclosurestl.com"
+                rel="noopener"
+                className="inline-flex items-center gap-2 text-[var(--text-primary)] hover:text-[var(--brand-yellow)] transition-colors"
+              >
+                Stop Foreclosure STL
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://probatehelpstl.com"
+                rel="noopener"
+                className="inline-flex items-center gap-2 text-[var(--text-primary)] hover:text-[var(--brand-yellow)] transition-colors"
+              >
+                Probate Help STL
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* ── Section 5: Join the Team + Sign-off ─────────────────── */}
         <section className="py-16 md:py-24 bg-black text-center">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
