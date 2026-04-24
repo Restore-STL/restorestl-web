@@ -1,0 +1,58 @@
+---
+title: "Engine Placeholder Post"
+description: "A stub post that exercises every blog component so we know the engine renders end-to-end. Will be flipped to draft or removed when the first real post ships."
+author: "Restore STL"
+published_at: "2026-04-20"
+updated_at: "2026-04-21"
+tags: ["engineering", "meta"]
+pillar: "behind-the-scenes"
+related_neighborhoods: ["lafayette-square"]
+hero_image: "/blog/placeholder-hero.svg"
+hero_alt: "Stylized Lafayette Square streetscape with glowing second-story windows."
+featured: false
+draft: true
+sources:
+  - num: 1
+    title: "Mapping Decline: St. Louis and the Fate of the American City"
+    author: "Colin Gordon"
+    year: 2008
+  - num: 2
+    title: "The Color of Law: A Forgotten History of How Our Government Segregated America"
+    author: "Richard Rothstein"
+    year: 2017
+---
+
+This post exists only to prove the blog engine works. It renders every custom component the engine supports, pulls live data from the Knowledge Base API, and will be replaced by the first real post the week TICKET-111 lands.
+
+## Live data from the Knowledge Base
+
+The card below is a server component that fetches the Lafayette Square record from the production Knowledge API at build time and revalidates every hour:
+
+<NeighborhoodCard slug="lafayette-square" />
+
+If the API is unavailable at build time, the card degrades to a quiet "unavailable" state — the rest of the post still renders.
+
+## How HOLC grades shape the map
+
+St. Louis carries the residue of 1930s redlining. The grades ran <HOLCGradeBadge grade="A" />, <HOLCGradeBadge grade="B" />, <HOLCGradeBadge grade="C" />, and <HOLCGradeBadge grade="D" /> — and that last tier denied residents access to federally backed mortgages for decades.<SourceCitation num="1" />
+
+The downstream effects still show up in appraisals, insurance pricing, and which blocks get bank financing versus cash offers today.<SourceCitation num="2" />
+
+<PullQuote by="Kevin" role="20 years buying houses in St. Louis">
+  Grade D didn't mean the houses were bad. It meant the maps said the people were.
+</PullQuote>
+
+## What a good post looks like
+
+A real post pairs lived experience with receipts. Market claims cite comps. Historical claims cite sources. Neighborhood claims embed the Knowledge Base card so the data stays current as the team updates the loaders.
+
+- Clear thesis in the lede
+- Two or three concrete examples
+- One pull quote, no more
+- An embedded neighborhood card when the post is geographically specific
+
+That's it. No filler. No keyword stuffing. No hollow marketing.
+
+## What's next
+
+When the Lafayette Square pillar post ships under TICKET-111, this file either goes to `draft: true` or gets deleted outright. The engine stays.

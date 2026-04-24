@@ -17,8 +17,8 @@ export default function Navigation() {
           {/* Logo - Simple text only */}
           <Link href="/" className="flex items-center">
             <span className="text-xl md:text-2xl font-bold">
-              <span className="text-[var(--brand-yellow)]">Restore </span>
-              <span className="text-gray-300">STL</span>
+              <span className="text-white">Restore </span>
+              <span className="text-[var(--brand-yellow)]">STL</span>
             </span>
           </Link>
 
@@ -35,6 +35,12 @@ export default function Navigation() {
               className="text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium"
             >
               About
+            </Link>
+            <Link
+              href="/blog"
+              className="text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium"
+            >
+              Blog
             </Link>
             <Link
               href="/sell"
@@ -98,6 +104,13 @@ export default function Navigation() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
+            </Link>
+            <Link
+              href="/blog"
+              className="block text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium py-3 px-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Blog
             </Link>
             <Link
               href="/sell"
