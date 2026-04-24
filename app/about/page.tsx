@@ -71,7 +71,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-black" />
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              People First
+              People <span className="text-[var(--brand-yellow)]">First</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300">
               Small team, big impact.
