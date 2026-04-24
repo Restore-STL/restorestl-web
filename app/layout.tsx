@@ -33,9 +33,10 @@ export const metadata: Metadata = {
     siteName: "Restore STL",
     images: [
       {
-        url: "https://restorestl.com/og-image.jpg",
+        url: "https://restorestl.com/og-image.png",
         width: 1200,
         height: 630,
+        alt: "Restore STL \u2014 we buy houses to restore neighborhoods",
       },
     ],
     type: "website",
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
     title: "Restore STL | Sell Your House Fast in St. Louis",
     description:
       "Get a cash offer on your St. Louis home. No repairs, no fees, no hassle.",
-    images: ["https://restorestl.com/og-image.jpg"],
+    images: ["https://restorestl.com/og-image.png"],
   },
 };
 
