@@ -114,7 +114,7 @@ export default async function BlogPostPage({
       <main style={{ background: '#fff', color: 'var(--ink)' }}>
         <section
           style={{
-            background: 'var(--charcoal-mid)',
+            background: '#000',
             color: '#fff',
             padding: '72px 24px 56px',
             position: 'relative',
