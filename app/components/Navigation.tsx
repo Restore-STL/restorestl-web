@@ -17,8 +17,8 @@ export default function Navigation() {
           {/* Logo - Simple text only */}
           <Link href="/" className="flex items-center">
             <span className="text-xl md:text-2xl font-bold">
-              <span className="text-[var(--brand-yellow)]">Restore </span>
-              <span className="text-gray-300">STL</span>
+              <span className="text-white">Restore </span>
+              <span className="text-[var(--brand-yellow)]">STL</span>
             </span>
           </Link>
 

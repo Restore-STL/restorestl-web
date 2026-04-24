@@ -35,7 +35,7 @@ export default function SourceCitation({ num, title, url }: SourceCitationProps)
 }
 
 interface SourcesListProps {
-  sources: { num: string; title: string; author?: string; year?: number; url?: string }[];
+  sources: { num: number; title: string; author?: string; year?: number; url?: string }[];
 }
 
 export function SourcesList({ sources }: SourcesListProps) {

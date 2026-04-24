@@ -10,7 +10,7 @@ export default function PullQuote({ children, by, role }: PullQuoteProps) {
       style={{
         position: 'relative',
         margin: '40px 0',
-        padding: '36px 40px 36px 52px',
+        padding: '36px 40px 36px 80px',
         background: 'var(--surface-alt)',
         borderLeft: '4px solid var(--brand-yellow)',
         borderRadius: '0 10px 10px 0',

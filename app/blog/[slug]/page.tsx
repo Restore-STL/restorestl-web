@@ -11,6 +11,7 @@ import PillarBadge from '@/app/components/blog/PillarBadge';
 import TopicExplorer from '@/app/components/blog/TopicExplorer';
 import NewsletterBand from '@/app/components/blog/NewsletterBand';
 import NeighborhoodCard from '@/app/components/blog/NeighborhoodCard';
+import { SourcesList } from '@/app/components/blog/SourceCitation';
 import { mdxComponents } from '@/app/components/blog/MDXComponents';
 import { getAllSlugs, getPostBySlug } from '@/app/lib/blog';
 import { validateNeighborhoodSlugs } from '@/app/lib/knowledge-client';
@@ -113,7 +114,7 @@ export default async function BlogPostPage({
       <main style={{ background: '#fff', color: 'var(--ink)' }}>
         <section
           style={{
-            background: 'var(--charcoal-deep)',
+            background: 'var(--charcoal-mid)',
             color: '#fff',
             padding: '72px 24px 56px',
             position: 'relative',
@@ -162,6 +163,12 @@ export default async function BlogPostPage({
             }}
           />
         </article>
+
+        {fm.sources && fm.sources.length > 0 && (
+          <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
+            <SourcesList sources={fm.sources} />
+          </div>
+        )}
 
         {validRelated.length > 0 && (
           <section

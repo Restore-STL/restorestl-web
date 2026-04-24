@@ -22,6 +22,14 @@ export const PILLARS: {
 
 export type HOLCGrade = 'A' | 'B' | 'C' | 'D';
 
+export interface PostSource {
+  num: number;
+  title: string;
+  author?: string;
+  year?: number;
+  url?: string;
+}
+
 export interface PostFrontmatter {
   title: string;
   description: string;
@@ -36,6 +44,7 @@ export interface PostFrontmatter {
   read_time_minutes?: number;
   featured?: boolean;
   draft?: boolean;
+  sources?: PostSource[];
 }
 
 export interface Post {

@@ -49,7 +49,7 @@ export default async function BlogIndexPage({
       <main style={{ background: '#fff', color: 'var(--ink)' }}>
         <section
           style={{
-            background: 'var(--charcoal-deep)',
+            background: 'var(--charcoal-mid)',
             color: '#fff',
             padding: '80px 24px 64px',
           }}
