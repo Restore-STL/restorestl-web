@@ -15,7 +15,7 @@ const REQUIRED_FIELDS: (keyof PostFrontmatter)[] = [
   'hero_alt',
 ];
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_PRODUCTION = process.env.VERCEL_ENV === 'production';
 
 function readPostFile(filename: string): Post {
   const slug = filename.replace(/\.mdx$/, '');
