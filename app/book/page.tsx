@@ -15,7 +15,7 @@ export default function BookPage() {
       <Navigation />
       <main>
         {/* Hero Section */}
-        <section className="bg-[var(--charcoal-deep)] py-16 md:py-24">
+        <section className="bg-black py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Let&apos;s Talk About Your Property
