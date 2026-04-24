@@ -18,9 +18,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.restorestl.com"),
   title: "Restore STL | Sell Your House Fast in St. Louis",
   description:
     "Get a cash offer on your St. Louis home. No repairs, no fees, no hassle. Restore STL buys houses in any condition — close on your timeline.",
+  alternates: {
+    canonical: "https://www.restorestl.com",
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -29,11 +33,11 @@ export const metadata: Metadata = {
     title: "Restore STL | Sell Your House Fast in St. Louis",
     description:
       "Get a cash offer on your St. Louis home. No repairs, no fees, no hassle.",
-    url: "https://restorestl.com",
+    url: "https://www.restorestl.com",
     siteName: "Restore STL",
     images: [
       {
-        url: "https://restorestl.com/og-image.png",
+        url: "https://www.restorestl.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "Restore STL \u2014 we buy houses to restore neighborhoods",
@@ -46,7 +50,7 @@ export const metadata: Metadata = {
     title: "Restore STL | Sell Your House Fast in St. Louis",
     description:
       "Get a cash offer on your St. Louis home. No repairs, no fees, no hassle.",
-    images: ["https://restorestl.com/og-image.png"],
+    images: ["https://www.restorestl.com/og-image.png"],
   },
 };
 
