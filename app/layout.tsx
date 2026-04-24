@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.restorestl.com",
   },
+  robots: process.env.VERCEL_ENV !== "production"
+    ? { index: false, follow: false }
+    : undefined,
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
