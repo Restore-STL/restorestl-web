@@ -1,6 +1,7 @@
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -9,27 +10,36 @@ export const metadata: Metadata = {
     'Meet the Restore STL team. Local St. Louis real estate professionals restoring neighborhoods one home at a time with honest numbers and real options.',
 };
 
-const TEAM = [
+type TeamMember = {
+  initials: string;
+  name: string;
+  role: string;
+  description: string;
+  photo?: { src: string; alt: string };
+};
+
+const TEAM: TeamMember[] = [
   {
     initials: 'KD',
     name: 'Kevin Dairaghi',
     role: 'Founder',
     description:
-      'Real estate has been a part of Kevin\u2019s life in a lot of different ways for many years. He founded Restore STL to give St. Louis homeowners something the industry won\u2019t \u2014 honest information and real options.',
+      'Kevin has spent 20 years buying houses in St. Louis. He\u2019s your first call \u2014 he walks the property, talks through your situation, and runs the math. Cash offer or listing with an agent, Kevin gives you honest numbers and a clear path.',
+    photo: {
+      src: '/team/kevin-dairaghi.jpg',
+      alt: 'Kevin Dairaghi, Founder of Restore STL',
+    },
   },
   {
     initials: 'CO',
     name: 'Chris O\u2019Keefe',
     role: 'Technology Director',
     description:
-      'Your first call. Chris walks you through the numbers \u2014 what your property is worth, what your options are, and what each path actually costs.',
-  },
-  {
-    initials: 'JJ',
-    name: 'Jake Jakubisin',
-    role: 'Creative Director',
-    description:
-      'Jake runs the KD Podcast and creates the content that brought you here. If you saw a Restore STL video or ad \u2014 that was Jake.',
+      'Chris handles the research and tools behind every Restore STL conversation. Before Kevin calls, Chris has pulled the comparable sales, checked ownership and title history, and pressure-tested the numbers. He also researches and edits The STL Read, the blog you\u2019re reading now.',
+    photo: {
+      src: '/team/chris-okeefe.jpg',
+      alt: 'Chris O\u2019Keefe, Technology Director at Restore STL',
+    },
   },
 ];
 
@@ -76,18 +86,31 @@ export default function AboutPage() {
               The Team
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
               {TEAM.map((member) => (
                 <div
                   key={member.initials}
                   className="bg-[var(--background-gray)] rounded-xl p-8 text-center border border-[var(--border-gray)]"
                 >
                   <div className="flex justify-center mb-6">
-                    <div className="w-28 h-28 rounded-full bg-[#1a1a1a] flex items-center justify-center ring-4 ring-[var(--brand-yellow)]/30">
-                      <span className="text-4xl font-bold text-[var(--brand-yellow)]">
-                        {member.initials}
-                      </span>
-                    </div>
+                    {member.photo ? (
+                      <div className="w-28 h-28 rounded-full overflow-hidden ring-4 ring-[var(--brand-yellow)]/30">
+                        <Image
+                          src={member.photo.src}
+                          alt={member.photo.alt}
+                          width={112}
+                          height={112}
+                          className="w-full h-full object-cover"
+                          priority
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-28 h-28 rounded-full bg-[#1a1a1a] flex items-center justify-center ring-4 ring-[var(--brand-yellow)]/30">
+                        <span className="text-4xl font-bold text-[var(--brand-yellow)]">
+                          {member.initials}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">
                     {member.name}
