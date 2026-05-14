@@ -201,3 +201,86 @@ After all edits, `npx tsc --noEmit` (with `.next/` cleared) returns zero errors.
 - `app/api/newsletter/route.ts` removal was incidental to blog removal; the route was internal-only and not a backend dependency.
 - `google-maps.d.ts` (typing reference for Google Maps API) was left in place. It's no longer used after the WMHWWidget rewrite, but it's a 10-line type stub with no Chris/GTM/form/blog content. Cleanup is out of scope for this phase.
 
+---
+
+## Phase 1.6 changes (2026-05-14) — WMHW, /join, /capital removal
+
+Phase 1.6 of TICKET-189 — removes the "What's My Home Worth" valuation widget and the `/join` (buyer-profile) and `/capital` (capital-partner) wizard pages. The Phase 1.5 rewrites of these surfaces were transitional placeholders; Phase 1.6 deletes the surfaces entirely. Pre-Phase-1.5 source is preserved outside this repo for future rebuild on STL Property Review / Keystone (see Archive section below).
+
+### Archive (outside this repo)
+
+Pre-deletion source extracted from commit `8b8e9463f64817803c03b2986f46de82993c0fb8` (the Phase 1 commit — last state where the original wizards existed) and written to:
+
+```
+~/Dev/projects/restorestl-agent-platform-main/_archive/rstl-baseline-2026-05-14/
+├── README.md                    — top-level archive overview
+├── wmhw/                        — WMHWWidget + WMHWSection + google-maps.d.ts (~982 lines)
+│   └── README.md                — data contract (POST /api/valuation, POST /api/leads/wmhw), flow, deps
+├── join/                        — buyer-profile wizard (page + layout, ~700 lines)
+│   └── README.md                — data contract (POST /api/buyers/submit), 5-step flow, deps
+└── capital/                     — capital-partner wizard (page + layout, ~700 lines)
+    └── README.md                — data contract (POST /api/capital-partners/submit), 4-step flow, deps
+```
+
+Archive is **untracked** in the platform repo. Per ticket §Step 0.6, it is a one-way reference copy Chris will place deliberately later. It does **not** appear in any RSTL repo commit.
+
+### Grep commands run (re-runnable for Phase-1.6 verification)
+
+```bash
+# Should return zero non-audit hits after Phase 1.6 (except the redirect rules in next.config.ts)
+grep -rniE "wmhw|/join\b|/capital\b|buyer network|capital partner|join our buyer|become a capital|apply to join" \
+  --include="*.tsx" --include="*.ts" --include="*.json" --include="*.html" --include="*.md" --include="*.mdx" \
+  --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=design-ref \
+  | grep -v "^scrub-audit.md:"
+```
+
+Result: only `next.config.ts` lines that define the `/join` and `/capital` redirect rules match — that's by design.
+
+### 1. WMHW removal — DELETED
+
+| Location | Action |
+|---|---|
+| `app/components/wmhw/WMHWWidget.tsx` | **Deleted** — the Phase-1.5 phone-CTA card that lived here is now gone. Its render sites (BrandStatement, WMHWSection) updated below. |
+| `app/components/sell/WMHWSection.tsx` | **Deleted** — section wrapper used only on `/sell`. |
+| `google-maps.d.ts` (repo root) | **Deleted** — Google Maps type stub used only by the original WMHW widget. Phase 1.5 had left it as dead code; cleaned up now. |
+| `app/components/BrandStatement.tsx` | Removed the `import WMHWWidget from './wmhw/WMHWWidget'` and the surrounding "WMHW intro" `<div>` (the headline "Your home has value. You should know what it is." and its paragraph) plus the `<WMHWWidget />` render. Kept the mission body paragraph and the TIME / ENERGY / MONEY three-card grid. Removed the `mb-16` on the grid so the section ends cleanly on the cards. |
+| `app/sell/page.tsx` | Removed the `import WMHWSection from '../components/sell/WMHWSection'` and the `<WMHWSection />` render. Did not touch metadata, headlines, or the "Time to Talk" CTA — page now flows Hero → TimeMoneyEnergy → TwoPathComparison → Sell CTA → Footer. |
+
+### 2. /join and /capital removal — DELETED
+
+| Location | Action |
+|---|---|
+| `app/join/` (entire directory: `page.tsx`, `layout.tsx`) | **Deleted** via `git rm -r`. |
+| `app/capital/` (entire directory: `page.tsx`, `layout.tsx`) | **Deleted** via `git rm -r`. |
+| `app/robots.ts` | Removed `/join` from the `disallow` array. The page no longer exists; the redirect (below) handles deindex naturally. `/book/confirmed` kept. |
+| `next.config.ts` | Added four permanent (301) redirects: `/join` → `/`, `/join/:path*` → `/`, `/capital` → `/`, `/capital/:path*` → `/`. Coexist with the Phase-1.5 `/blog` redirects. |
+| `app/sitemap.ts` | Already pruned in Phase 1.5 (does not include `/join` or `/capital`). Verified. |
+
+### 3. Inbound links + CTA copy — VERIFIED CLEAN
+
+| Surface | Result |
+|---|---|
+| `app/components/Navigation.tsx` (desktop + mobile) | No `/join` or `/capital` links. Verified via grep. |
+| `app/components/Footer.tsx` | No `/join` or `/capital` links. Verified via grep. |
+| `app/page.tsx` (homepage) | No `/join` or `/capital` links. Verified via grep. |
+| CTA copy ("buyer network", "capital partner", "Become a", "Apply to join", "Join our buyer", "Investor Buy Box") | Zero non-audit hits. Verified via grep. |
+| `app/about/page.tsx` line 234 ("Want to join our team?") | **Left as-is** — this is a careers CTA linked to `/book`, not a promotion of the deleted `/join` flow. The phrase "join our team" does not match the deleted-flow promotional copy patterns. |
+
+### 4. Typecheck
+
+After all edits, `npx tsc --noEmit` (with `.next/` cleared) returns zero errors.
+
+### Phase-1.6 acceptance checklist for Chris on Vercel preview
+
+(matches the list in the dispatch §"Visual acceptance checklist")
+
+- [ ] Homepage `/` — Brand statement section ends on the TIME / ENERGY / MONEY three-card grid. No empty space, no hanging headline.
+- [ ] `/sell` — flows Hero → TimeMoneyEnergy → TwoPathComparison → "Time to Talk" CTA → Footer. No empty section where WMHW used to be.
+- [ ] `/join` → 301 redirect to `/`.
+- [ ] `/capital` → 301 redirect to `/`.
+- [ ] Navigation (desktop + mobile) — no `/join` or `/capital` links.
+- [ ] Footer — no `/join` or `/capital` links.
+- [ ] Homepage CTAs — no "join our buyer network" or "become a capital partner" copy.
+- [ ] No console errors on initial page load.
+- [ ] Build succeeds, deploy is green.
+

@@ -2,7 +2,6 @@ import Navigation from '../components/Navigation';
 import HeroSection from '../components/sell/HeroSection';
 import TimeMoneyEnergy from '../components/sell/TimeMoneyEnergy';
 import TwoPathComparison from '../components/sell/TwoPathComparison';
-import WMHWSection from '../components/sell/WMHWSection';
 import Footer from '../components/Footer';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -21,7 +20,6 @@ export default function SellPage() {
         <HeroSection />
         <TimeMoneyEnergy />
         <TwoPathComparison />
-        <WMHWSection />
         {/* Sell CTA */}
         <section className="py-16 md:py-24 bg-black text-center">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

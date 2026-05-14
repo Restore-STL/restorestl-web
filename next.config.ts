@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
     return [
       { source: "/blog", destination: "/", permanent: true },
       { source: "/blog/:path*", destination: "/", permanent: true },
+      { source: "/join", destination: "/", permanent: true },
+      { source: "/join/:path*", destination: "/", permanent: true },
+      { source: "/capital", destination: "/", permanent: true },
+      { source: "/capital/:path*", destination: "/", permanent: true },
     ];
   },
 };

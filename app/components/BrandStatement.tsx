@@ -1,5 +1,3 @@
-import WMHWWidget from './wmhw/WMHWWidget';
-
 export default function BrandStatement() {
   return (
     <section className="py-16 md:py-24 bg-white">
@@ -11,23 +9,11 @@ export default function BrandStatement() {
           isn&apos;t a side hustle &mdash; it&apos;s a mission.
         </p>
 
-        {/* WMHW intro */}
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-[var(--text-primary)]">
-            Your home has value. You should know what it is.
-          </h2>
-          <p className="text-[var(--text-secondary)] text-lg leading-relaxed max-w-2xl mx-auto">
-            Most companies lock this data behind commissions and callbacks. We
-            believe you deserve access to real numbers &mdash; no strings
-            attached.
-          </p>
-        </div>
-
         {/* TIME / ENERGY / MONEY with lead-in */}
         <p className="text-center text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-6">
           Every seller has three resources
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-[var(--background-gray)] rounded-xl p-6 text-center border border-[var(--border-gray)]">
             <div className="text-[var(--charcoal-deep)] text-3xl mb-3">&#9201;</div>
             <h4 className="text-lg font-bold text-[var(--text-primary)] mb-2">
@@ -58,9 +44,6 @@ export default function BrandStatement() {
             </p>
           </div>
         </div>
-
-        {/* WMHW Widget */}
-        <WMHWWidget />
       </div>
     </section>
   );

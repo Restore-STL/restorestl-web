@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/join', '/book/confirmed'],
+      disallow: ['/book/confirmed'],
     },
     sitemap: 'https://restorestl.com/sitemap.xml',
   };
