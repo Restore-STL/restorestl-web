@@ -37,12 +37,6 @@ export default function Navigation() {
               About
             </Link>
             <Link
-              href="/blog"
-              className="text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium"
-            >
-              Blog
-            </Link>
-            <Link
               href="/sell"
               className="text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium"
             >
@@ -104,13 +98,6 @@ export default function Navigation() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
-            </Link>
-            <Link
-              href="/blog"
-              className="block text-white hover:text-[var(--brand-yellow)] transition-colors duration-200 font-medium py-3 px-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Blog
             </Link>
             <Link
               href="/sell"

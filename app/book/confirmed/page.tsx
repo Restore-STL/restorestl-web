@@ -1,6 +1,5 @@
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
-import BookingConfirmedClient from './BookingConfirmedClient';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -59,7 +58,6 @@ export default function BookingConfirmedPage() {
         </section>
       </main>
       <Footer />
-      <BookingConfirmedClient />
     </>
   );
 }

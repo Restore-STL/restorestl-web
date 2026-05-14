@@ -113,3 +113,91 @@ These IDs are not Chris's *name*, so they don't violate the literal "personal re
 ## Re-verification
 
 After this PR is merged, re-run any of the grep commands above on `main`. The Chris/Okeefe grep should return zero hits across all `.tsx/.ts/.md` files (it may still match this `scrub-audit.md` itself — that's expected; the audit file is a record, not user-facing content).
+
+---
+
+## Phase 1.5 changes (2026-05-14) — Backend dependency cut & tracking strip
+
+Phase 1.5 of TICKET-189 — removes GTM/GA loading, all contact forms that POST to Chris's Cloud Run backend, and the blog surface.
+
+### Grep commands run (re-runnable for Phase-1.5 verification)
+
+```bash
+# GTM / GA / dataLayer
+grep -rniE "googletagmanager|GTM-|G-KMKSDK|gtm\.js|dataLayer" \
+  --include="*.tsx" --include="*.ts" --include="*.json" --include="*.html" \
+  --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=design-ref
+
+# Backend API env vars + endpoints
+grep -rniE "NEXT_PUBLIC_API_URL|NEXT_PUBLIC_API_KEY|NEXT_PUBLIC_RESTORESTL|X-API-Key|/api/leads/|/api/buyers/|/api/capital-partners/|/api/valuation" \
+  --include="*.tsx" --include="*.ts" --include="*.json" \
+  --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=design-ref
+
+# Blog surface
+grep -rn "/blog\b|app/blog|content/blog|next-mdx-remote|gray-matter|reading-time|@mdx-js|@next/mdx|remark-gfm|rehype-" \
+  --include="*.tsx" --include="*.ts" \
+  --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=design-ref
+```
+
+All three return only the audit doc itself (zero non-audit hits) after Phase 1.5.
+
+### 1. GTM / GA strip — REMOVED
+
+| Location | Action |
+|---|---|
+| `app/layout.tsx` | Removed the inline `<Script id="gtm-script">` block (the `(function(w,d,s,l,i){...})(...,'GTM-M7DX6C4X')` injection) **and** the `<noscript><iframe src="googletagmanager.com/ns.html?id=GTM-M7DX6C4X" />` fallback. Also removed the `import Script from "next/script"` line that became unused. |
+| `app/components/wmhw/WMHWWidget.tsx` | Entire file rewritten (see §3 below); the GTM/GA4 comment header (`GTM Container: GTM-M7DX6C4X` / `GA4 Property: G-KMKSDK02X9`) is gone with it. |
+| `app/components/book/GoogleCalendarEmbed.tsx` | Removed the `useEffect` that pushed `{ event: 'book_page_viewed' }` to `window.dataLayer`. The component is now a pure server-renderable iframe wrapper. |
+| `app/book/confirmed/BookingConfirmedClient.tsx` | **Deleted.** The component only existed to push `{ event: 'booking_completed' }` to `window.dataLayer`. With GTM gone, it had no purpose. Its caller in `app/book/confirmed/page.tsx` was updated to drop the import and render. |
+
+No `app/lib/tracking.ts` exists in this repo, so no tracking-module gate or deletion was needed.
+
+### 2. Contact-form rip-and-replace — REMOVED + REPLACED
+
+The ticket asked to "Remove the form component file entirely" + "Replace each render site with a phone-CTA card". `restorestl-web` had no separate `ContactModal` component; the forms were inline in three places. Strategy chosen: rewrite each form-bearing surface so the file location stays put and render sites are untouched.
+
+| Location | Original | Action |
+|---|---|---|
+| `app/components/wmhw/WMHWWidget.tsx` (~470 lines) | "What's My Home Worth" multi-step widget — Google Places autocomplete → POST `/api/valuation` → condition selection → POST `/api/leads/wmhw` (X-API-Key) | **Rewritten** as a ~20-line phone-CTA card. Default export preserved, so render sites in `app/components/BrandStatement.tsx` (homepage) and `app/components/sell/WMHWSection.tsx` (sell page) work unchanged. New copy: "Get your numbers, straight from Kevin." + `tel:+13147363311` button. |
+| `app/join/page.tsx` (~660 lines) | Multi-step buyer-profile wizard — POST `/api/buyers/submit` (X-API-Key) | **Rewritten** as a single-section landing page. New copy: "Join the Buyers List" hero + phone-CTA card. Page now uses site `Navigation` + `Footer` (previously full-screen wizard had no site chrome). |
+| `app/capital/page.tsx` (~680 lines) | Multi-step capital-partner inquiry wizard — POST `/api/capital-partners/submit` (X-API-Key) | **Rewritten** as a single-section landing page. New copy: "Lend on Real Deals" hero + phone-CTA card. Page now uses site `Navigation` + `Footer`. |
+
+`NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_RESTORESTL` (API key), and `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` env-var reads — all removed from source. The Cloud Run backend URL no longer appears anywhere in committed code.
+
+### 3. Blog removal — DELETED
+
+| Path | Action |
+|---|---|
+| `app/blog/` (entire directory: `page.tsx`, `[slug]/page.tsx`, `rss.xml/route.ts`) | **Deleted** via `git rm -r`. |
+| `content/blog/placeholder.mdx` | **Deleted.** The only blog post was a placeholder. |
+| `app/components/blog/` (9 files: HOLCGradeBadge, MDXComponents, NeighborhoodCard, NewsletterBand, PillarBadge, PostMeta, PullQuote, SourceCitation, TopicExplorer) | **Deleted** — all blog-only components. |
+| `app/lib/blog.ts`, `app/lib/blog-types.ts`, `app/lib/knowledge-client.ts` | **Deleted** — used only by blog files (verified via grep). |
+| `app/api/newsletter/route.ts` | **Deleted** — only invoked by `NewsletterBand` (blog-only). The route was a stub that `console.log`'d; no real subscribers to migrate. |
+| `public/blog/placeholder-hero.svg` | **Deleted** along with the rest. |
+| `app/components/Navigation.tsx` | Removed the two `<Link href="/blog">Blog</Link>` entries (one desktop, one mobile). |
+| `app/sitemap.ts` | Removed `getAllPosts` import and the `/blog` + per-post URL entries. |
+| `next.config.ts` | **Added** `/blog` → `/` and `/blog/:path*` → `/` permanent redirects so inbound links don't 404. |
+| `package.json` | Removed blog/MDX deps: `@mdx-js/loader`, `@mdx-js/react`, `@next/mdx`, `gray-matter`, `next-mdx-remote`, `reading-time`, `rehype-autolink-headings`, `rehype-slug`, `remark-gfm`. Verified zero remaining imports of any of these. `package-lock.json` regenerated (`npm install` removed 149 packages). |
+
+### 4. Typecheck
+
+After all edits, `npx tsc --noEmit` (with `.next/` cleared) returns zero errors. Vercel build will exercise the production compile path.
+
+### Phase-1.5 acceptance checklist for Chris on Vercel preview
+
+(matches the list in the ticket §"Post-Phase-1.5 acceptance checks")
+
+- [ ] View Source on `/`, `/about`, `/sell`, `/join`, `/capital`, `/book`, `/book/confirmed`: no `googletagmanager.com`, no `gtm.js`, no `GTM-`, no `G-` strings.
+- [ ] `/` homepage: WMHW section now shows the phone-CTA card (no address autocomplete, no condition selector).
+- [ ] `/join` and `/capital`: pages are short single-section landings with the phone-CTA card; no multi-step wizard.
+- [ ] Click the phone CTA on any of the above — confirms `tel:+13147363311`.
+- [ ] Visit `/blog` and `/blog/anything` — both should 301 to `/`.
+- [ ] Navigation no longer shows a "Blog" link (desktop or mobile).
+- [ ] No console errors on initial page load.
+
+### What this phase did NOT touch
+
+- `app/components/book/GoogleCalendarEmbed.tsx` still embeds Kevin's Google Calendar booking iframe. Booking flow itself is unchanged — only the `dataLayer.push` GTM event was removed.
+- `app/api/newsletter/route.ts` removal was incidental to blog removal; the route was internal-only and not a backend dependency.
+- `google-maps.d.ts` (typing reference for Google Maps API) was left in place. It's no longer used after the WMHWWidget rewrite, but it's a 10-line type stub with no Chris/GTM/form/blog content. Cleanup is out of scope for this phase.
+
