@@ -275,7 +275,7 @@ After all edits, `npx tsc --noEmit` (with `.next/` cleared) returns zero errors.
 (matches the list in the dispatch §"Visual acceptance checklist")
 
 - [ ] Homepage `/` — Brand statement section ends on the TIME / ENERGY / MONEY three-card grid. No empty space, no hanging headline.
-- [ ] `/sell` — flows Hero → TimeMoneyEnergy → TwoPathComparison → "Time to Talk" CTA → Footer. No empty section where WMHW used to be.
+- [ ] `/sell` — flows Hero → TimeMoneyEnergy → TwoPathComparison → bottom CTA → Footer. No empty section where WMHW used to be.
 - [ ] `/join` → 301 redirect to `/`.
 - [ ] `/capital` → 301 redirect to `/`.
 - [ ] Navigation (desktop + mobile) — no `/join` or `/capital` links.
@@ -283,4 +283,92 @@ After all edits, `npx tsc --noEmit` (with `.next/` cleared) returns zero errors.
 - [ ] Homepage CTAs — no "join our buyer network" or "become a capital partner" copy.
 - [ ] No console errors on initial page load.
 - [ ] Build succeeds, deploy is green.
+
+---
+
+## Phase 1.7 changes (2026-05-14) — /book calendar surface removal + CTA repoint + About cleanup
+
+Phase 1.7 of TICKET-189 — deletes the `/book` calendar surface (which embedded Chris's personal Google Calendar appointment URL), repoints every "Book a Call" CTA to dial Kevin directly, removes the dead "See Your Home's Value" CTAs that pointed at the WMHW anchor deleted in Phase 1.6, and tidies the About page.
+
+### Grep commands run (re-runnable for Phase-1.7 verification)
+
+```bash
+grep -rnE 'href="/book|Book a Call|Time to Talk|See Your Home|Your Home.s Value|See My Home|#instant-offer|GoogleCalendarEmbed|calendar\.google\.com' \
+  --include="*.tsx" --include="*.ts" \
+  --exclude-dir=node_modules --exclude-dir=.next \
+  | grep -v "^scrub-audit.md:"
+```
+
+Returns zero non-audit hits after Phase 1.7.
+
+### 1. /book surface — DELETED
+
+| Location | Action |
+|---|---|
+| `app/book/page.tsx`, `app/book/confirmed/page.tsx` | **Deleted** via `git rm -r app/book`. |
+| `app/components/book/GoogleCalendarEmbed.tsx` | **Deleted** via `git rm -r app/components/book`. The iframe pointed at `calendar.google.com/calendar/appointments/schedules/AcZssZ0TyX0wJqTUcySPOm1Xk-8MWXq_…` — Chris's personal appointment booking URL. Removed entirely. |
+| `next.config.ts` | Added `/book` → `/` and `/book/:path*` → `/` permanent (301) redirects alongside the Phase-1.5 `/blog` and Phase-1.6 `/join` / `/capital` redirects. |
+| `app/sitemap.ts` | Removed the `/book` URL entry. |
+| `app/robots.ts` | Removed `/book/confirmed` from the `disallow` array (page no longer exists; redirect handles deindex). `disallow` is now an empty array. |
+
+### 2. CTA repoint — all `/book` links now dial Kevin
+
+Every `<Link href="/book">…</Link>` and `<a href="/book">…</a>` across the codebase was repointed to `<a href="tel:+13147363311">…</a>`. Existing styling preserved; visible text updated per dispatch.
+
+| Location | Original | Action |
+|---|---|---|
+| `app/components/Navigation.tsx` (desktop CTA, line ~54) | `<Link href="/book">Book a Call</Link>` (yellow button) | Replaced with `<a href="tel:+13147363311">Call (314) 736-3311</a>`. Yellow styling preserved. |
+| `app/components/Navigation.tsx` (mobile menu CTA, line ~119) | `<Link href="/book" onClick={closeMenu}>Book a Call</Link>` | Replaced with `<a href="tel:+13147363311" onClick={closeMenu}>Call (314) 736-3311</a>`. `onClick={() => setIsMobileMenuOpen(false)}` handler preserved per dispatch. |
+| `app/components/Footer.tsx` top "Ready to Talk?" CTA | `<Link href="/book">Time to Talk</Link>` (yellow underlined) | Replaced with `<a href="tel:+13147363311">Call (314) 736-3311</a>`. Heading "Ready to Talk?" unchanged. |
+| `app/components/Footer.tsx` nav-links row "Book a Call" | `<Link href="/book">Book a Call</Link>` between About and Privacy Policy | **Removed entirely.** Footer phone number is still displayed below in its own block; the nav-link row is now `About · Privacy Policy`. Removing the link prevents two adjacent identical phone CTAs in the footer. |
+| `app/components/PeopleFirstMethod.tsx` CTA | `<Link href="/book">Time to Talk</Link>` (yellow button) | Replaced with `<a href="tel:+13147363311">Call (314) 736-3311</a>`. Yellow styling preserved. |
+| `app/components/MoreThanCashOffers.tsx` Fallback | `<a href="tel:..."><br>(314) 736-3311</a>` · `<Link href="/book">Book 15 minutes</Link>` (two-CTA row with middot separator) | **Secondary `<Link>` removed entirely** (the existing primary phone CTA already does the same job). Section now has one phone CTA. Middot separator removed. |
+| `app/sell/page.tsx` bottom "Time to Talk" section | Primary `<Link href="/book">Book a Call</Link>` (yellow) + secondary `<a href="tel:…">(314) 736-3311</a>` | **Primary repointed** to `<a href="tel:+13147363311">Call (314) 736-3311</a>` matching the yellow styling. **Secondary phone link removed.** **Section heading "Time to Talk" renamed to "Ready to Talk?"** to match the Footer pattern and satisfy the dispatch's "zero `Time to Talk` matches in source" rule. |
+| `app/about/page.tsx` Section 5 careers CTA | `<h2>Are you exceptional? Want to join our team?</h2>` + `<Link href="/book">Time to Talk</Link>` (yellow button) | **Headline and Link both deleted.** See §4 below. |
+
+### 3. Hero consolidation — "See Your Home's Value" CTAs removed
+
+After WMHW removal in Phase 1.6, the heroes' primary `<a href="#instant-offer">` buttons pointed at a dead anchor and the secondary `<Link href="/book">` was destined for repointing anyway. Both consolidated into a single primary phone CTA per hero.
+
+| Location | Original | Action |
+|---|---|---|
+| `app/components/Hero.tsx` (homepage) | Primary yellow `<a href="#instant-offer">See Your Home's Value</a>` + secondary `<Link href="/book">Book a Call</Link>` with arrow icon | **Both deleted.** Replaced with single primary yellow `<a href="tel:+13147363311">Call (314) 736-3311</a>` using the same yellow-button styling. Removed unused `import Link from 'next/link'`. |
+| `app/components/sell/HeroSection.tsx` (`/sell`) | Same two-CTA pattern: `See Your Home's Value` + `Book a Call with Kevin` | **Both deleted.** Same single-CTA consolidation. Removed unused `import Link from 'next/link'`. |
+| `app/components/sell/TwoPathComparison.tsx` (two cards) | `<a href="#instant-offer">See My Home's Value</a>` on each of two cards (Cash Offer path + Traditional Listing path) | **Both repointed** to `<a href="tel:+13147363311">Call (314) 736-3311</a>`. Yellow and charcoal button styling preserved per-card. |
+
+`#instant-offer` had zero remaining anchor targets after Phase 1.6 (the WMHW section was deleted). All four `#instant-offer` href references are now gone.
+
+### 4. About page — DELETED
+
+| Location | Original | Action |
+|---|---|---|
+| `app/about/page.tsx` Section 2 headline | `<h2>The Team</h2>` | **Renamed** to `<h2>Meet Kevin</h2>`. Surrounding markup, layout, and the single-card grid unchanged. Section comment also updated from "Section 2: The Team" → "Section 2: Meet Kevin". |
+| `app/about/page.tsx` Section 5 careers CTA | `<h2>Are you exceptional? Want to join our team?</h2>` + `<Link href="/book">Time to Talk</Link>` (yellow button with `mb-16`) + `<p>People over profit. Every time.</p>` | **Headline + Link removed.** **Sign-off tagline preserved.** Section is now `<section py-16 md:py-24 bg-black>` wrapping just the centered yellow tagline. The `mb-16` on the deleted button is gone with the button; the section's outer padding now defines spacing. Reads as a clean closing sign-off. |
+| `app/about/page.tsx` imports | `import Link from 'next/link'` | **Removed** — no remaining `<Link>` usages after Section 5 edit. `Image` import retained (still used by team card). |
+
+### 5. Typecheck
+
+`npx tsc --noEmit` (with `.next/` cleared) returns zero errors.
+
+### Files touched
+
+15 files in this commit (3 deletes, 12 modifies):
+
+- **Deleted:** `app/book/page.tsx`, `app/book/confirmed/page.tsx`, `app/components/book/GoogleCalendarEmbed.tsx`
+- **Modified:** `app/about/page.tsx`, `app/components/Footer.tsx`, `app/components/Hero.tsx`, `app/components/MoreThanCashOffers.tsx`, `app/components/Navigation.tsx`, `app/components/PeopleFirstMethod.tsx`, `app/components/sell/HeroSection.tsx`, `app/components/sell/TwoPathComparison.tsx`, `app/robots.ts`, `app/sell/page.tsx`, `app/sitemap.ts`, `next.config.ts`
+
+### Phase-1.7 acceptance checklist for Chris on Vercel preview
+
+(matches the list in the dispatch §"Visual acceptance checklist")
+
+- [ ] Homepage `/` hero — single primary yellow "Call (314) 736-3311" button. No "See Your Home's Value". No secondary "Book a Call" link.
+- [ ] `/sell` hero — single primary yellow phone CTA. No "See Your Home's Value". No secondary link.
+- [ ] `/sell` bottom CTA — heading "Ready to Talk?" + single primary yellow phone button. No redundant secondary phone link.
+- [ ] Navigation (desktop + mobile) — yellow CTA reads "Call (314) 736-3311", is a `tel:` link. No `/book` references anywhere.
+- [ ] Footer — top CTA reads "Ready to Talk? / Call (314) 736-3311" (tel link). Nav-links row is just "About · Privacy Policy". Phone block below unchanged.
+- [ ] About page — "Meet Kevin" headline above Kevin's single card. Section 5 reads as a clean centered tagline ("People over profit. Every time.") with no missing headline or empty button slot.
+- [ ] `/book` → 301 redirect to `/`. `/book/confirmed` → 301 redirect to `/`.
+- [ ] No console errors on initial page load.
+- [ ] Vercel build green.
+- [ ] Every previously-affected page passes the "looks intentional, not damaged" eye test.
 

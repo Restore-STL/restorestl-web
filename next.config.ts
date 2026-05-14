@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       { source: "/join/:path*", destination: "/", permanent: true },
       { source: "/capital", destination: "/", permanent: true },
       { source: "/capital/:path*", destination: "/", permanent: true },
+      { source: "/book", destination: "/", permanent: true },
+      { source: "/book/:path*", destination: "/", permanent: true },
     ];
   },
 };

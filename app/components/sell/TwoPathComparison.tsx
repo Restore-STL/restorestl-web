@@ -76,10 +76,10 @@ export default function TwoPathComparison() {
             </div>
 
             <a
-              href="#instant-offer"
+              href="tel:+13147363311"
               className="block text-center bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] px-6 py-3 rounded-lg font-bold mt-6 transition-colors min-h-[44px]"
             >
-              See My Home&apos;s Value
+              Call (314) 736-3311
             </a>
           </div>
 
@@ -137,10 +137,10 @@ export default function TwoPathComparison() {
             </div>
 
             <a
-              href="#instant-offer"
+              href="tel:+13147363311"
               className="block text-center bg-[var(--charcoal-deep)] hover:bg-[var(--charcoal-light)] text-white px-6 py-3 rounded-lg font-bold mt-6 transition-colors min-h-[44px]"
             >
-              See My Home&apos;s Value
+              Call (314) 736-3311
             </a>
           </div>
         </div>

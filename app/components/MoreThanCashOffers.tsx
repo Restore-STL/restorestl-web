@@ -87,7 +87,7 @@ export default function MoreThanCashOffers() {
           <p className="text-[var(--text-secondary)] text-lg mb-4">
             Not sure what category you&rsquo;re in? Start with Kevin.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex justify-center">
             <a
               href="tel:+13147363311"
               className="inline-flex items-center gap-2 text-[var(--text-primary)] hover:text-[var(--brand-yellow)] font-semibold text-lg transition-colors"
@@ -107,28 +107,6 @@ export default function MoreThanCashOffers() {
               </svg>
               (314) 736-3311
             </a>
-            <span className="text-[var(--text-secondary)] hidden sm:inline">
-              &middot;
-            </span>
-            <Link
-              href="/book"
-              className="inline-flex items-center gap-2 text-[var(--text-primary)] hover:text-[var(--brand-yellow)] font-semibold text-lg transition-colors"
-            >
-              Book 15 minutes
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
           </div>
         </div>
       </div>

@@ -51,12 +51,12 @@ export default function Navigation() {
               </svg>
               (314) 736-3311
             </a>
-            <Link
-              href="/book"
+            <a
+              href="tel:+13147363311"
               className="bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] font-semibold px-5 py-2 rounded-lg transition-all duration-200"
             >
-              Book a Call
-            </Link>
+              Call (314) 736-3311
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -116,13 +116,13 @@ export default function Navigation() {
               </svg>
               (314) 736-3311
             </a>
-            <Link
-              href="/book"
+            <a
+              href="tel:+13147363311"
               className="block bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] font-semibold py-3 px-4 rounded-lg text-center transition-colors duration-200"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Book a Call
-            </Link>
+              Call (314) 736-3311
+            </a>
           </div>
         </div>
       </nav>

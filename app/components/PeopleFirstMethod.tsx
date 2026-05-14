@@ -110,12 +110,12 @@ export default function PeopleFirstMethod() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link
-            href="/book"
+          <a
+            href="tel:+13147363311"
             className="inline-block bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] font-bold text-lg px-8 py-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl min-h-[44px]"
           >
-            Time to Talk
-          </Link>
+            Call (314) 736-3311
+          </a>
         </div>
       </div>
     </section>
