@@ -372,3 +372,21 @@ After WMHW removal in Phase 1.6, the heroes' primary `<a href="#instant-offer">`
 - [ ] Vercel build green.
 - [ ] Every previously-affected page passes the "looks intentional, not damaged" eye test.
 
+---
+
+## Phase 1.8 changes (2026-05-14) — Dedupe Navigation phone CTAs
+
+Phase 1.7 left the Navigation with two adjacent phone CTAs on both desktop and mobile: an inline ghost-styled phone link with SVG icon, immediately followed by the yellow primary CTA button. Both pointed at `tel:+13147363311`. Phase 1.8 removes the inline ghost link in both layouts, keeping the canonical yellow primary CTA pattern used everywhere else on the site.
+
+### Edits
+
+| Location | Action |
+|---|---|
+| `app/components/Navigation.tsx` desktop nav (between `<Link href="/sell">Sell</Link>` and the yellow CTA) | Removed the inline `<a href="tel:+13147363311" class="...flex items-center gap-2"><svg/>(314) 736-3311</a>`. Desktop nav order is now: Home / About / Sell / [yellow Call button]. |
+| `app/components/Navigation.tsx` mobile menu (between the Sell link and the yellow CTA) | Removed the inline `<a href="tel:+13147363311" class="...flex items-center gap-3" onClick={closeMenu}><svg/>(314) 736-3311</a>`. Mobile menu order is now: Home / About / Sell / [yellow Call button]. The yellow CTA's `onClick={() => setIsMobileMenuOpen(false)}` handler is intact. |
+
+### Verification
+
+- `grep -c "tel:+13147363311" app/components/Navigation.tsx` returns `2` (down from 4) — exactly the desktop yellow CTA + mobile yellow CTA.
+- `npx tsc --noEmit` clean after `.next/` clear.
+
