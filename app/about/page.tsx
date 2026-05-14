@@ -1,6 +1,5 @@
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 
@@ -28,17 +27,6 @@ const TEAM: TeamMember[] = [
     photo: {
       src: '/team/kevin-dairaghi.jpg',
       alt: 'Kevin Dairaghi, Founder of Restore STL',
-    },
-  },
-  {
-    initials: 'CO',
-    name: 'Chris O\u2019Keefe',
-    role: 'Technology Director',
-    description:
-      'Chris handles the research and tools behind every Restore STL conversation. Before Kevin calls, Chris has pulled the comparable sales, checked ownership and title history, and pressure-tested the numbers. He also researches and edits The STL Read, the blog you\u2019re reading now.',
-    photo: {
-      src: '/team/chris-okeefe.jpg',
-      alt: 'Chris O\u2019Keefe, Technology Director at Restore STL',
     },
   },
 ];
@@ -79,14 +67,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 2: The Team ─────────────────────────────────── */}
+        {/* ── Section 2: Meet Kevin ───────────────────────────────── */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] mb-12 text-center">
-              The Team
+              Meet Kevin
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 gap-8 max-w-md mx-auto">
               {TEAM.map((member) => (
                 <div
                   key={member.initials}
@@ -238,19 +226,9 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 5: Join the Team + Sign-off ─────────────────── */}
+        {/* ── Section 5: Sign-off ──────────────────────────────────── */}
         <section className="py-16 md:py-24 bg-black text-center">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Are you exceptional? Want to join our team?
-            </h2>
-            <Link
-              href="/book"
-              className="inline-block bg-[var(--brand-yellow)] hover:bg-[var(--brand-yellow-hover)] text-[var(--charcoal-deep)] font-bold text-lg px-8 py-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl min-h-[44px] mb-16"
-            >
-              Time to Talk
-            </Link>
-
             <p className="text-2xl md:text-3xl font-bold text-[var(--brand-yellow)]">
               People over profit. Every time.
             </p>

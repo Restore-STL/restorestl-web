@@ -9,12 +9,12 @@ export default function Footer() {
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Ready to Talk?
           </h3>
-          <Link
-            href="/book"
+          <a
+            href="tel:+13147363311"
             className="inline-block text-[var(--brand-yellow)] hover:text-[var(--brand-yellow-hover)] font-medium text-lg underline underline-offset-4 transition-colors duration-200"
           >
-            Time to Talk
-          </Link>
+            Call (314) 736-3311
+          </a>
         </div>
 
         {/* Divider */}
@@ -27,13 +27,6 @@ export default function Footer() {
             className="text-gray-300 hover:text-[var(--brand-yellow)] transition-colors duration-200 text-sm"
           >
             About
-          </Link>
-          <span className="text-gray-600 text-sm">&middot;</span>
-          <Link
-            href="/book"
-            className="text-gray-300 hover:text-[var(--brand-yellow)] transition-colors duration-200 text-sm"
-          >
-            Book a Call
           </Link>
           <span className="text-gray-600 text-sm">&middot;</span>
           <Link
