@@ -432,7 +432,7 @@ export default function InvestorIntakePage() {
           <span className="text-lg leading-none">📍</span>
           <div>
             <div className="font-semibold text-[#0a8754] text-sm mb-[5px]">St. Louis is a block-by-block city.</div>
-            <div className="text-[#4a5e56] text-[13.5px] leading-relaxed">We know a ZIP code doesn&apos;t tell the whole story. After you submit, Kevin and Chris will schedule a short call to fine-tune your buy box — specific streets, neighborhoods, and boundaries that matter to you.</div>
+            <div className="text-[#4a5e56] text-[13.5px] leading-relaxed">We know a ZIP code doesn&apos;t tell the whole story. After you submit, Kevin will schedule a short call to fine-tune your buy box — specific streets, neighborhoods, and boundaries that matter to you.</div>
           </div>
         </div>
 
@@ -608,7 +608,7 @@ export default function InvestorIntakePage() {
 
           <div className="bg-white border border-[#eef1ea] rounded-[14px] py-7 px-8 text-left">
             {[
-              { n: 1, title: 'Kevin and Chris review your profile', sub: 'Usually within 48 hours.' },
+              { n: 1, title: 'Kevin reviews your profile', sub: 'Usually within 48 hours.' },
               { n: 2, title: 'We schedule a short call', sub: "St. Louis is block-by-block — we'll fine-tune your boundaries together." },
               { n: 3, title: 'You start receiving deals', sub: 'Only deals that fit your buy box. No spam, no shotgun blasts.' },
             ].map(({ n, title, sub }, i) => (

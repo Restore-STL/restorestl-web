@@ -30,17 +30,6 @@ const TEAM: TeamMember[] = [
       alt: 'Kevin Dairaghi, Founder of Restore STL',
     },
   },
-  {
-    initials: 'CO',
-    name: 'Chris O\u2019Keefe',
-    role: 'Technology Director',
-    description:
-      'Chris handles the research and tools behind every Restore STL conversation. Before Kevin calls, Chris has pulled the comparable sales, checked ownership and title history, and pressure-tested the numbers. He also researches and edits The STL Read, the blog you\u2019re reading now.',
-    photo: {
-      src: '/team/chris-okeefe.jpg',
-      alt: 'Chris O\u2019Keefe, Technology Director at Restore STL',
-    },
-  },
 ];
 
 const PILLARS = [
@@ -86,7 +75,7 @@ export default function AboutPage() {
               The Team
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 gap-8 max-w-md mx-auto">
               {TEAM.map((member) => (
                 <div
                   key={member.initials}
